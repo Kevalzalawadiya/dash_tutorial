@@ -10,7 +10,7 @@ import pandas as pd
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
 
-dash.register_page(__name__, name="CSV-DAta", external_stylesheets=external_stylesheets)
+dash.register_page(__name__, name="CSV-DAta", path='/page3', external_stylesheets=external_stylesheets)
 
 
 layout = html.Div(
