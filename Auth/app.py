@@ -76,7 +76,9 @@ def get_session():
         yield session
     finally:
         session.close()
+
 app=FastAPI()
+
 
 @app.post("/register")
 def register_user(user:UserCreate, session: Session = Depends(get_session)):
@@ -103,11 +105,11 @@ JWT_REFRESH_SECRET_KEY = "13ugfdfgh@#$%^@&jkl45678902"
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def get_hashed_password(password: str) -> str:
+def get_hashed_password(password: str):
     return password_context.hash(password)
 
 
-def verify_password(password: str, hashed_pass: str) -> bool:
+def verify_password(password: str, hashed_pass: str):
     return password_context.verify(password, hashed_pass)
 
 def create_access_token(subject: Union[str, any], expires_delta: int = None) -> str:
@@ -123,7 +125,7 @@ def create_access_token(subject: Union[str, any], expires_delta: int = None) -> 
      
     return encoded_jwt
 
-def create_refresh_token(subject: Union[str, any], expires_delta: int = None) -> str:
+def create_refresh_token(subject: Union[str, any], expires_delta: int = None):
     if expires_delta is not None:
         expires_delta = datetime.utcnow() + expires_delta
     else:
@@ -184,7 +186,7 @@ class JWTBearer(HTTPBearer):
         else:
             raise HTTPException(status_code=403, detail="Invalid authorization code.")
 
-    def verify_jwt(self, jwtoken: str) -> bool:
+    def verify_jwt(self, jwtoken: str):
         isTokenValid: bool = False
 
         try:
