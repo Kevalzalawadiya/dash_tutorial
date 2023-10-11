@@ -2,6 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import dcc, html, callback, Output, Input, State, no_update
 import dash_bootstrap_components as dbc
+import requests 
 
 dash.register_page(
     __name__, path="/", name="Home", external_stylesheets=[dbc.themes.BOOTSTRAP]
@@ -11,7 +12,7 @@ layout = html.Div(
         html.Div(
             children=[
                 dcc.Input(
-                    id="user",
+                    id="email",
                     type="text",
                     placeholder="Enter Username",
                     style={
@@ -77,61 +78,63 @@ layout = html.Div(
 @callback(
     Output("output1", "children"),
     Output('url', 'pathname'),
-    [Input("verify", "n_clicks")],
-    [
-        State("user", "value"),
-        State("passw", "value"),
-    ],
+    Input("verify", "n_clicks"),
+    State("email", "value"),
+    State("passw", "value")
 )
 
-def update_output(n_clicks, uname, passw):
-    li = {"admin": "admin"}
-    if uname == "" or uname == None or passw == "" or passw == None:
-        return html.Div(
-            children="", style={"padding-left": "550px", "padding-top": "10px"}
-        ), '/'
-    if uname not in li:
-        return html.Div(
-            children=[ 
-                      dbc.Alert("Invalid username or password !",
-                            id="alert", 
-                            color="dark", 
-                            style={
-                                "margin-left": "35%",
-                                "width": "450px",
-                                "height": "45px",
-                                "padding": "10px",
-                                "margin-top": "10px",
-                                "font-size": "16px",
-                                "border-width": "3px",
-                                "border-color": "#a0a3a2",
-                                },
-                            ),
-            ], style={"padding-left": "550px", "padding-top": "40px", "font-size": "16px"},
-        ), '/'
-    if li[uname] == passw:
-        return html.Div(), '/page3'
-    else:
-        return html.Div(
-            children=[ 
-                      dbc.Alert("Invalid username or password !",
-                            id="alert", 
-                            color="dark", 
-                            style={
-                                "margin-left": "35%",
-                                "width": "450px",
-                                "height": "45px",
-                                "padding": "10px",
-                                "margin-top": "10px",
-                                "font-size": "16px",
-                                "border-width": "3px",
-                                "border-color": "#a0a3a2",
-                                },
-                            ),
-            ],
-            style={"padding-left": "550px", "padding-top": "40px", "font-size": "16px"},
-        ), '/'
+def update_output(n_clicks, email, passw):
+    if n_clicks:
+        data = {"email": email, "password": passw}
+        print("DATA -------------> ", data)
+        response = requests.post("http://localhost:8000/login", json=data)
+        print("Response : ------------> ", response)
 
-
-
+        if response.status_code == 200:
+            return html.Div(), '/page3'
+        else:
+            return html.Div(
+                children=[ 
+                    dbc.Alert("Invalid username or password!",
+                        id="alert", 
+                        color="dark", 
+                        style={
+                            "margin-left": "35%",
+                            "width": "450px",
+                            "height": "45px",
+                            "padding": "10px",
+                            "margin-top": "10px",
+                            "font-size": "16px",
+                            "border-width": "3px",
+                            "border-color": "#a0a3a2",
+                        },
+                    ),
+                ],
+                style={"padding-left": "550px", "padding-top": "40px", "font-size": "16px"},
+            ), '/'
     
+    if email == "" or email is None or passw == "" or passw is None:
+        return html.Div(
+            children="",
+            style={"padding-left": "550px", "padding-top": "10px"}
+        ), '/'
+    
+    return html.Div(
+        children=[
+            dbc.Alert("Invalid username or password!",
+                id="alert", 
+                color="dark", 
+                style={
+                    "margin-left": "35%",
+                    "width": "450px",
+                    "height": "45px",
+                    "padding": "10px",
+                    "margin-top": "10px",
+                    "font-size": "16px",
+                    "border-width": "3px",
+                    "border-color": "#a0a3a2",
+                },
+            ),
+        ],
+        style={"padding-left": "550px", "padding-top": "40px", "font-size": "16px"},
+    ), '/'
