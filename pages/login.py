@@ -19,7 +19,7 @@ layout = html.Div(className='simple-form', children=[
     dcc.Location(id='url', refresh=True),
 ])
            
-            
+    
 
 @callback(
     Output("output1", "children"),

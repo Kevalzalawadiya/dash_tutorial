@@ -12,3 +12,4 @@ layout = html.Div(className='simple-form', children=[
     html.Div(id="output1"),
     dcc.Location(id='url', refresh=True),
 ])
+

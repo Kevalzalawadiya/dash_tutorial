@@ -201,6 +201,8 @@ jwt_bearer = JWTBearer()
 
 
 
+
+
 @app.post('/change-password')
 def change_password(request:changepassword, db: Session = Depends(get_session)):
     user = db.query(User).filter(User.email == request.email).first()

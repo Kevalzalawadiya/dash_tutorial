@@ -14,3 +14,7 @@ layout = html.Div(className="simple-form", children=[
     dcc.Input(placeholder="Password", type="password", className="input-field"),
     html.Button("Register", className="simple-button"),
 ])
+
+
+
+
