@@ -15,6 +15,8 @@ layout = html.Div(className='simple-form', children=[
     html.P([ "If you don't have an account, ",
             dcc.Link("register here", id="registration", href="/registration", className="registration-link"),
         ]),  
+    html.P(["Forgot your password? "]),
+    dcc.Link("Reset it here", id="forgot-password", href="/forgotPassword", className="forgot-password-link"),
     html.Div(id="output1"),
     dcc.Location(id='url', refresh=True),
 ])

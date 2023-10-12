@@ -4,7 +4,8 @@ import requests
 from dash import html, dcc,Output,Input,callback, no_update
 import requests
 
-dash.register_page(__name__, path='/registration', name='registration', external_stylesheets=['assets/registration.css'])
+external_stylesheets = [dbc.themes.BOOTSTRAP]+['assets/style.css']
+dash.register_page(__name__, path='/registration', name='registration', external_stylesheets=external_stylesheets)
 
 layout = html.Div(className="simple-form", children=[
     html.H2("Registration Form"),
