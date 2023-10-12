@@ -5,8 +5,6 @@ import base64
 import datetime
 import io
 
-import pandas as pd
-
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
 
