@@ -9,7 +9,7 @@ dash.register_page(__name__, path="/", name="Home", external_stylesheets=externa
 
 
 layout = html.Div(className='simple-form', children=[
-    dcc.Input(id="email", type="text", placeholder="Enter Username", className='input-field'),
+    dcc.Input(id="email", type="text", placeholder="Enter Email", className='input-field'),
     dcc.Input(id="passw",type="password", placeholder="Enter Password", className='input-field',),
     html.Button("submit", id="submit", formAction='', n_clicks=0, className="simple-button",),
     html.P([ "If you don't have an account, ",
