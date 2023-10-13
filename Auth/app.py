@@ -70,6 +70,7 @@ class TokenCreate(BaseModel):
 
 
 
+
 def get_session():
     session = SessionLocal()
     try:
@@ -78,23 +79,6 @@ def get_session():
         session.close()
 
 app=FastAPI()
-
-
-@app.post("/register")
-def register_user(user:UserCreate, session: Session = Depends(get_session)):
-    existing_user = session.query(User).filter_by(email=user.email).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    encrypted_password =get_hashed_password(user.password)
-
-    new_user = User(username=user.username, email=user.email, password=encrypted_password )
-
-    session.add(new_user)
-    session.commit()
-    session.refresh(new_user)
-
-    return {"message":"user created successfully"}
 
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 30  # 30 minutes
@@ -134,6 +118,24 @@ def create_refresh_token(subject: Union[str, any], expires_delta: int = None):
     to_encode = {"exp": expires_delta, "sub": str(subject)}
     encoded_jwt = jwt.encode(to_encode, JWT_REFRESH_SECRET_KEY, ALGORITHM)
     return encoded_jwt
+
+
+
+@app.post("/register")
+def register_user(user:UserCreate, session: Session = Depends(get_session)):
+    existing_user = session.query(User).filter_by(email=user.email).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    encrypted_password =get_hashed_password(user.password)
+
+    new_user = User(username=user.username, email=user.email, password=encrypted_password )
+
+    session.add(new_user)
+    session.commit()
+    session.refresh(new_user)
+
+    return {"message":"user created successfully"}
 
 
 
@@ -203,7 +205,7 @@ jwt_bearer = JWTBearer()
 
 
 
-@app.post('/change-password')
+@app.post('/changepassword')
 def change_password(request:changepassword, db: Session = Depends(get_session)):
     user = db.query(User).filter(User.email == request.email).first()
     if user is None:
@@ -256,6 +258,11 @@ def token_required(func):
             return {'msg': "Token blocked"}
         
     return wrapper
+
+
+
+
+
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ dash.register_page(__name__, path="/dashboard", name="dashboard", external_style
 
 layout = html.Div(className='simple-form', children=[
     html.Button("Registration", id="registration", formAction='', n_clicks=0, className="simple-button",),
+    dcc.Link("Change Password ", id="forgot-password", href="/changePassword", className="forgot-password-link"),
     html.Div(id="output1"),
     dcc.Location(id='url', refresh=True),
 ])
