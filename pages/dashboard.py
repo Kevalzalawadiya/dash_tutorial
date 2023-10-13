@@ -133,6 +133,8 @@ layout = html.Div([
 
 
 
+
+
 # # the same function (toggle_navbar_collapse) is used in all three callbacks
 # for i in [1, 2, 3]:
 #     callback(
