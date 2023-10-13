@@ -4,21 +4,23 @@ from dash import dcc, html, callback, Output, Input, State, no_update
 import dash_bootstrap_components as dbc
 import requests 
 
-external_stylesheets = [dbc.themes.BOOTSTRAP]+['assets/style.css']
-dash.register_page(__name__, path="/", name="Home", external_stylesheets=external_stylesheets)
+dash.register_page(__name__, path="/", name="Home")
 
 
-layout = html.Div(className='simple-form', children=[
-    dcc.Input(id="email", type="text", placeholder="Enter Email", className='input-field'),
-    dcc.Input(id="passw",type="password", placeholder="Enter Password", className='input-field',),
-    html.Button("submit", id="submit", formAction='', n_clicks=0, className="simple-button",),
-    html.P([ "If you don't have an account, ",
-            dcc.Link("register here", id="registration", href="/registration", className="registration-link"),
-        ]),  
-    html.P(["Forgot your password? "]),
-    dcc.Link("Reset it here", id="forgot-password", href="/forgotPassword", className="forgot-password-link"),
-    html.Div(id="output1"),
-    dcc.Location(id='url', refresh=True),
+layout = html.Div(className='center-div', children=[
+    html.Div(className='simple-form', children=[
+        dcc.Input(id="email", type="text", placeholder="Enter Email", className='input-field'),
+        dcc.Input(id="passw",type="password", placeholder="Enter Password", className='input-field',),
+        html.Button("submit", id="submit", formAction='', n_clicks=0, className="simple-button",),
+        html.P([ "If you don't have an account, ",
+                dcc.Link("register here", id="registration", href="/registration", className="registration-link"),
+            ]),  
+        html.P(["Forgot your password? "]),
+        dcc.Link("Reset it here", id="forgot-password", href="/forgotPassword", className="forgot-password-link"),
+        html.Div(id="output1"),
+        dcc.Location(id='url', refresh=True),
+        
+    ]),
 ])
            
     
