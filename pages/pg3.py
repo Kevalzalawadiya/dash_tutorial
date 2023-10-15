@@ -1,82 +1,125 @@
 import dash
-from dash import Dash, dcc, html, dash_table, Input, Output, State, callback
+import dash_bootstrap_components as dbc
+from dash import Input, Output, State, dcc, html, callback
 
-import base64
-import datetime
-import io
-
-external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
+dash.register_page(__name__, path="/p3", name="p3",)
 
 
-dash.register_page(__name__, name="CSV-DAta", path='/page3', external_stylesheets=external_stylesheets)
-
-
-layout = html.Div(
+sidebar_header = dbc.Row(
     [
-        dcc.Upload(
-            id="upload-data",
-            children=html.Div(["Drag and Drop or ", html.A("Select Files")]),
-            style={
-                "width": "100%",
-                "height": "60px",
-                "lineHeight": "60px",
-                "borderWidth": "1px",
-                "borderStyle": "dashed",
-                "borderRadius": "5px",
-                "textAlign": "center",
-                "margin": "10px",
-            },
-            # Allow multiple files to be uploaded
-            multiple=True,
+        dbc.Col(html.H2("Sidebar", className="display-4")),
+        dbc.Col(
+            [
+                html.Button(
+                    # use the Bootstrap navbar-toggler classes to style
+                    html.Span(className="navbar-toggler-icon"),
+                    className="navbar-toggler",
+                    # the navbar-toggler classes don't set color
+                    style={
+                        "color": "rgba(0,0,0,.5)",
+                        "border-color": "rgba(0,0,0,.1)",
+                    },
+                    id="navbar-toggle",
+                ),
+                html.Button(
+                    # use the Bootstrap navbar-toggler classes to style
+                    html.Span(className="navbar-toggler-icon"),
+                    className="navbar-toggler",
+                    # the navbar-toggler classes don't set color
+                    style={
+                        "color": "rgba(0,0,0,.5)",
+                        "border-color": "rgba(0,0,0,.1)",
+                    },
+                    id="sidebar-toggle",
+                ),
+            ],
+            # the column containing the toggle will be only as wide as the
+            # toggle, resulting in the toggle being right aligned
+            width="auto",
+            # vertically align the toggle in the center
+            align="center",
         ),
-        html.Div(id="output-data-upload"),
     ]
 )
 
-
-def parse_contents(contents, filename, date):
-    content_type, content_string = contents.split(",")
-
-    decoded = base64.b64decode(content_string)
-    try:
-        if "csv" in filename:
-            # Assume that the user uploaded a CSV file
-            df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
-        elif "xls" in filename:
-            # Assume that the user uploaded an excel file
-            df = pd.read_excel(io.BytesIO(decoded))
-    except Exception as e:
-        print(e)
-        return html.Div(["There was an error processing this file."])
-
-    return html.Div(
-        [
-            html.H5(filename),
-            html.H6(datetime.datetime.fromtimestamp(date)),
-            dash_table.DataTable(
-                df.to_dict("records"), [{"name": i, "id": i} for i in df.columns]
+sidebar = html.Div(
+    [
+        sidebar_header,
+        # we wrap the horizontal rule and short blurb in a div that can be
+        # hidden on a small screen
+        html.Div(
+            [
+                html.Hr(),
+                html.P(
+                    "A responsive sidebar layout with collapsible navigation "
+                    "links.",
+                    className="lead",
+                ),
+            ],
+            id="blurb",
+        ),
+        # use the Collapse component to animate hiding / revealing links
+        dbc.Collapse(
+            dbc.Nav(
+                [
+                    dbc.NavLink("Home", href="/", active="exact"),
+                    dbc.NavLink("Page 1", href="/page-1", active="exact"),
+                    dbc.NavLink("Page 2", href="/page-2", active="exact"),
+                ],
+                vertical=True,
+                pills=True,
             ),
-            html.Hr(),  # horizontal line
-            # For debugging, display the raw contents provided by the web browser
-            html.Div("Raw Content"),
-            html.Pre(
-                contents[0:200] + "...",
-                style={"whiteSpace": "pre-wrap", "wordBreak": "break-all"},
-            ),
-        ]
-    )
-
-
-@callback(
-    Output("output-data-upload", "children"),
-    Input("upload-data", "contents"),
-    State("upload-data", "filename"),
-    State("upload-data", "last_modified"),
+            id="collapse",
+        ),
+    ],
+    id="sidebar",
 )
-def update_output(list_of_contents, list_of_names, list_of_dates):
-    if list_of_contents is not None:
-        children = [
-            parse_contents(c, n, d)
-            for c, n, d in zip(list_of_contents, list_of_names, list_of_dates)
-        ]
-        return children
+
+content = html.Div(id="page-content")
+
+layout = html.Div([dcc.Location(id="url"), sidebar, content])
+
+
+# @callback(Output("page-content", "children"), [Input("url", "pathname")])
+# def render_page_content(pathname):
+#     if pathname == "/":
+#         return html.P("This is the content of the home page!")
+#     elif pathname == "/page-1":
+#         return html.P("This is the content of page 1. Yay!")
+#     elif pathname == "/page-2":
+#         return html.P("Oh cool, this is page 2!")
+#     # If the user tries to reach a different page, return a 404 message
+#     return html.Div(
+#         [
+#             html.H1("404: Not found", className="text-danger"),
+#             html.Hr(),
+#             html.P(f"The pathname {pathname} was not recognised..."),
+#         ],
+#         className="p-3 bg-light rounded-3",
+#     )
+
+
+# @callback(
+#     Output("sidebar", "className"),
+#     [Input("sidebar-toggle", "n_clicks")],
+#     [State("sidebar", "className")],
+# )
+# def toggle_classname(n, classname):
+#     if n and classname == "":
+#         return "collapsed"
+#     return ""
+
+
+# @callback(
+#     Output("collapse", "is_open"),
+#     [Input("navbar-toggle", "n_clicks")],
+#     [State("collapse", "is_open")],
+# )
+# def toggle_collapse(n, is_open):
+#     if n:
+#         return not is_open
+#     return is_open
+
+
+
+

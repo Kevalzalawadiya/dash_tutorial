@@ -4,20 +4,24 @@ import requests
 from dash import html, dcc,Output,Input,callback, no_update
 import requests
 
-external_stylesheets = [dbc.themes.BOOTSTRAP]+['assets/style.css']
-dash.register_page(__name__, path='/registration', name='registration', external_stylesheets=external_stylesheets)
+dash.register_page(__name__, path='/registration', name='registration')
 
 layout = html.Div(className="simple-form", children=[
-    html.H2("Registration Form"),
-    dcc.Input(placeholder="Username",id='username-input', type="text", className="input-field"),
-    dcc.Input(placeholder="Email", id='email-input', type="email", className="input-field"),
-    dcc.Input(placeholder="Password", id='password-input', type="password", className="input-field"),
-    html.Button("Register", id='registerbutton', className="simple-button"),
-    html.P([ "If you already registor than, ",
-            dcc.Link("login here", id="registration", href="/", className="registration-link"),
-        ]),  
-    html.Div(id='output-div'),
-    dcc.Location(id='redirect', refresh=True),
+    
+])
+layout = html.Div(className='center-div', children=[
+    html.Div(className='simple-form', children=[
+        html.H2("Registration Form"),
+        dcc.Input(placeholder="Username",id='username-input', type="text", className="input-field"),
+        dcc.Input(placeholder="Email", id='email-input', type="email", className="input-field"),
+        dcc.Input(placeholder="Password", id='password-input', type="password", className="input-field"),
+        html.Button("Register", id='registerbutton', className="simple-button"),
+        html.P([ "If you already registor than, ",
+                dcc.Link("login here", id="registration", href="/", className="registration-link"),
+            ]),  
+        html.Div(id='output-div'),
+        dcc.Location(id='redirect', refresh=True),
+    ]),
 ])
 
 
