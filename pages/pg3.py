@@ -61,12 +61,11 @@ navbar = html.Div(
         ),
         dcc.Location(id="url"),  # Add the URL location component
     ],
-    className="child",
 )
 
 layout = html.Div(
     children=[
-        html.Div(children=[navbar]),
+        html.Div(children=[navbar], className="child",),
         html.Div(
             children=[
                 html.Div("slidbar", className="child"),
