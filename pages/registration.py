@@ -19,15 +19,15 @@ layout = html.Div(className='center-div', children=[
         html.P([ "If you already registor than, ",
                 dcc.Link("login here", id="registration", href="/", className="registration-link"),
             ]),  
-        html.Div(id='output-div'),
-        dcc.Location(id='redirect', refresh=True),
+        html.Div(id='output-div2'),
+        dcc.Location(id='redirect-page', refresh=True),
     ]),
 ])
 
 
 @callback(
-    Output('output-div', 'children'),
-    Output('redirect', 'pathname'),
+    Output('output-div2', 'children'),
+    Output('redirect-page', 'pathname'),
     Input('registerbutton', 'n_clicks'),
     Input('username-input', 'value'),
     Input('email-input', 'value'),

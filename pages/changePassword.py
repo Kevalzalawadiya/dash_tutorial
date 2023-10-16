@@ -15,13 +15,13 @@ layout = html.Div(className="simple-form", children=[
     dcc.Input(placeholder="Old Password", id='old-password-input', type="password", className="input-field"),
     dcc.Input(placeholder="New Password", id='new-password-input', type="password", className="input-field"),
     html.Button("Change Password", id='change-password-button', className="simple-button"),
-    html.Div(id='output-div'),
+    html.Div(id='outputdiv'),
     dcc.Location(id='redirect', refresh=True),
 ])
 
 @callback(
     Output('redirect', 'pathname'),
-    Output('output-div', 'children'),
+    Output('outputdiv', 'children'),
     Input('change-password-button', 'n_clicks'),
     Input('old-password-input', 'value'),
     Input('new-password-input', 'value')
