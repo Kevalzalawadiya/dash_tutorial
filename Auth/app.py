@@ -11,6 +11,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pydantic import BaseModel
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 import uvicorn
 
 
@@ -38,6 +41,12 @@ class TokenTable(Base):
     refresh_toke = Column(String(450),nullable=False)
     status = Column(Boolean)
     created_date = Column(DateTime, default=func.now())
+
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+    email = Column(String, primary_key=True)
+    reset_token = Column(String)
+    reset_token_expiry = Column(DateTime)
 
 Base.metadata.create_all(bind=engine)
 
@@ -68,6 +77,14 @@ class TokenCreate(BaseModel):
     created_date:datetime
 
 
+class ResetPassword(BaseModel):
+    token: str
+    new_password: str
+
+
+
+
+
 
 
 def get_session():
@@ -78,23 +95,6 @@ def get_session():
         session.close()
 
 app=FastAPI()
-
-
-@app.post("/register")
-def register_user(user:UserCreate, session: Session = Depends(get_session)):
-    existing_user = session.query(User).filter_by(email=user.email).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    encrypted_password =get_hashed_password(user.password)
-
-    new_user = User(username=user.username, email=user.email, password=encrypted_password )
-
-    session.add(new_user)
-    session.commit()
-    session.refresh(new_user)
-
-    return {"message":"user created successfully"}
 
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 30  # 30 minutes
@@ -134,6 +134,24 @@ def create_refresh_token(subject: Union[str, any], expires_delta: int = None):
     to_encode = {"exp": expires_delta, "sub": str(subject)}
     encoded_jwt = jwt.encode(to_encode, JWT_REFRESH_SECRET_KEY, ALGORITHM)
     return encoded_jwt
+
+
+
+@app.post("/register")
+def register_user(user:UserCreate, session: Session = Depends(get_session)):
+    existing_user = session.query(User).filter_by(email=user.email).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    encrypted_password =get_hashed_password(user.password)
+
+    new_user = User(username=user.username, email=user.email, password=encrypted_password )
+
+    session.add(new_user)
+    session.commit()
+    session.refresh(new_user)
+
+    return {"message":"user created successfully"}
 
 
 
@@ -203,7 +221,7 @@ jwt_bearer = JWTBearer()
 
 
 
-@app.post('/change-password')
+@app.post('/changepassword')
 def change_password(request:changepassword, db: Session = Depends(get_session)):
     user = db.query(User).filter(User.email == request.email).first()
     if user is None:
@@ -217,6 +235,48 @@ def change_password(request:changepassword, db: Session = Depends(get_session)):
     db.commit()
     
     return {"message": "Password changed successfully"}
+
+
+
+#forget password 
+
+def create_password_reset_token(email: str, expires_delta: timedelta = timedelta(hours=1)):
+    to_encode = {"email": email, "exp": datetime.utcnow() + expires_delta}
+    encoded_token = jwt.encode(to_encode, JWT_REFRESH_SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_token
+
+email_address = "aayushi.fichadiya@gmail.com" # type Email
+email_password = "rpyq nluu bmfx aafk"
+
+def send_reset_email(email, token):
+    msg = MIMEMultipart()
+    msg['From'] = email_address  # Replace with your Gmail email
+    msg['To'] = email
+    msg['Subject'] = "Password Reset"
+    body = f"Password Reset Token: {token}"
+    msg.attach(MIMEText(body, 'plain'))
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(email_address, email_password)  # Replace with your Gmail email and password
+    text = msg.as_string()
+    server.sendmail(email_address, email, text)
+    server.quit()
+
+
+@app.post("/forgot-password")
+async def forgot_password(email: str, db: Session = Depends(get_session)):
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    password_reset_token = create_password_reset_token(email)
+
+    # Send the password reset token in an email to the user
+    send_reset_email(email, password_reset_token)
+
+    return {"message": "Password reset email sent"}
+
 
 
 @app.post('/logout')
@@ -256,6 +316,11 @@ def token_required(func):
             return {'msg': "Token blocked"}
         
     return wrapper
+
+
+
+
+
 
 
 if __name__ == "__main__":
