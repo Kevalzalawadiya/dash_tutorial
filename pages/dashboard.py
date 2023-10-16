@@ -1,13 +1,16 @@
+''' This is code made with bootstrap with resonsive pages.'''
+
 import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, State, html, callback, dcc 
 
+''' PLOTLY_LOGO is a object from s3 bucket.'''
 PLOTLY_LOGO = "https://myteamplanner.s3.eu-north-1.amazonaws.com/logo.png"
 
 dash.register_page(__name__, path="/dashboard", name="dashboard")
 
+''' nav_iteam can be used for mention links on header parts. '''
 nav_item = dbc.NavItem(dbc.NavLink("Sign out", href="#"))
-
 dropdown = dbc.DropdownMenu(children=[
         dbc.DropdownMenuItem("Entry 1"),
         dbc.DropdownMenuItem("Entry 2"),
@@ -19,7 +22,7 @@ dropdown = dbc.DropdownMenu(children=[
     label="Menu",
 )
 
-''' slid bar header is atteched on slidebar variable '''
+''' slide bar header is atteched on slidebar      '''
 sidebar_header = dbc.Row(
     [
         dbc.Col(html.H2("Sidebar", className="display-4")),
@@ -49,6 +52,8 @@ sidebar_header = dbc.Row(
         ),
     ]
 )
+
+
 ''' this is sidebar i try to mention in logo '''
 sidebar = html.Div(
     [
@@ -85,6 +90,8 @@ sidebar = html.Div(
 
 content = html.Div(id="page-content")
 
+
+''' main layout of dashboard'''
 layout = html.Div([
     dbc.Navbar(
         dbc.Container(
@@ -103,7 +110,7 @@ layout = html.Div([
                 dbc.NavbarToggler(id="navbar-toggler2", n_clicks=0),
                 dbc.Collapse(
                     dbc.Nav(
-                        [dropdown],
+                        [dropdown, nav_item],
                         className="ms-auto",
                         navbar=True,
                     ),
@@ -123,25 +130,20 @@ layout = html.Div([
 
 
 
-# we use a callback to toggle the collapse on small screens
-# def toggle_navbar_collapse(n, is_open):
-#     if n:
-#         return not is_open
-#     return is_open
+''' we use a callback to toggle the collapse on small screens'''
+def toggle_navbar_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
 
+# the same function (toggle_navbar_collapse) is used in all three callbacks
+for i in [1, 2, 3]:
+    callback(
+        Output(f"navbar-collapse{i}", "is_open"),
+        [Input(f"navbar-toggler{i}", "n_clicks")],
+        [State(f"navbar-collapse{i}", "is_open")],
+    )(toggle_navbar_collapse)
 
-
-
-
-
-
-# # the same function (toggle_navbar_collapse) is used in all three callbacks
-# for i in [1, 2, 3]:
-#     callback(
-#         Output(f"navbar-collapse{i}", "is_open"),
-#         [Input(f"navbar-toggler{i}", "n_clicks")],
-#         [State(f"navbar-collapse{i}", "is_open")],
-#     )(toggle_navbar_collapse)
 
 ''' slide bar call back '''
 @callback(Output("page-content", "children"), [Input("url", "pathname")])

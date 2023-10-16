@@ -187,3 +187,35 @@
       width: 90%;
   }
 }
+
+
+/* try with https://codepen.io/moubi/pen/OJbQxGx */
+.parent {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.main {
+  display: flex;
+  flex-grow: 1;
+}
+
+.content {
+  flex-grow: 1;
+}
+  
+/* --------- Non-flexbox related styles --------- */
+.child {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1%;
+  padding: 10px;
+  font-size: 20px;
+  line-height: 20px;
+  color: #ffe8c3;
+  background-color: #00000000;
+  border-radius: 10px;
+  border: 10px solid #f5cc8b;
+}
