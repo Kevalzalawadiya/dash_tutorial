@@ -2,6 +2,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean,func
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
+from fastapi.responses import RedirectResponse,HTMLResponse
 from jose import jwt
 from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -11,6 +12,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pydantic import BaseModel
+from functools import wraps
+from jwt.exceptions import InvalidTokenError
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
@@ -276,6 +279,58 @@ async def forgot_password(email: str, db: Session = Depends(get_session)):
     send_reset_email(email, password_reset_token)
 
     return {"message": "Password reset email sent"}
+
+
+@app.get("/reset-password-link/")
+async def reset_password_link(token: str, request: Request):
+    # Redirect to the reset password page with the token as a URL parameter
+    return RedirectResponse(url=f"/reset-password-page/?token={token}")
+
+# Route for the reset password page
+@app.get("/reset-password-page/")
+async def reset_password_page(token: str):
+    return HTMLResponse(content=f"""
+        <html>
+        <head>
+            <title>Reset Password</title>
+        </head>
+        <body>
+            <h1>Welcome to the reset password page</h1>
+            <form action="/reset-password" method="post">
+                <input type="hidden" name="token" value="{token}">
+                <label for="new_password">New Password:</label><br>
+                <input type="password" id="new_password" name="new_password"><br><br>
+                <input type="submit" value="Submit">
+            </form>
+        </body>
+        </html>
+    """)
+
+# Route to reset the password using the token
+@app.post("/reset-password")
+async def reset_password(token: str, new_password: str, db: Session = Depends(get_session)):
+    try:
+        payload = jwt.decode(token, JWT_REFRESH_SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("email")
+
+        # Verify that the email exists in your database
+        user = db.query(User).filter(User.email == email).first()
+
+        if user:
+            # Check the token expiration
+            if "exp" in payload and datetime.utcfromtimestamp(payload["exp"]) > datetime.utcnow():
+                # Update the user's password
+                hashed_password = get_hashed_password(new_password)
+                user.hashed_password = hashed_password
+                db.commit()
+                return {"message": "Password reset successfully"}
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password reset token has expired")
+
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid password reset token")
+
 
 
 
