@@ -45,3 +45,5 @@ dash.register_page(__name__, path='/changePassword', name='changePassword', exte
 #     return no_update, no_update
 
 layout = None
+
+

@@ -48,3 +48,5 @@ def register_user(n_clicks, username, email, password):
                             ), '/'
 
     return no_update, no_update
+
+

@@ -169,3 +169,9 @@ layout = html.Div(
 def function_call_from_other_page(n_clicks):
     if n_clicks > 0:
         return function()
+
+
+
+
+
+

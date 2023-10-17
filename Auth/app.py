@@ -84,9 +84,6 @@ class ResetPassword(BaseModel):
 
 
 
-
-
-
 def get_session():
     session = SessionLocal()
     try:
