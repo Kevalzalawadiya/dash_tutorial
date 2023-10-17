@@ -207,7 +207,10 @@
   
 /* --------- Non-flexbox related styles --------- */
 .child {
+<<<<<<< Updated upstream
   /* display: flex; */
+=======
+>>>>>>> Stashed changes
   align-items: center;
   justify-content: center;
   /* margin: 1%; */
@@ -216,6 +219,7 @@
   line-height: 20px;
   color: #ffe8c3;
   background-color: #00000000;
+<<<<<<< Updated upstream
   /* border-radius: 10px; */
   border: 1px solid #f58ba2;
 }
@@ -235,3 +239,7 @@
 }
 
 
+=======
+  border-radius: 10px;
+}
+>>>>>>> Stashed changes
