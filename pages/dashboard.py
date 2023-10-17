@@ -14,7 +14,6 @@ dash.register_page(
 
 ''' modal for show pop-up when press the profile icon on nav.'''
 
-
 modal = html.Div(
     [
         dbc.Button(html.I(className="fas fa-user"), id="open", n_clicks=0, color="link"),
@@ -48,7 +47,6 @@ dropdown = dbc.DropdownMenu(
     in_navbar=True,
     label="Menu",
 )
-
 
 """ main layout of dashboard"""
 navbar = html.Div(
@@ -99,9 +97,6 @@ sidebar = html.Div(
     )
 )
 
-
-
-
 content = html.Div(id="page-content")
 
 layout = html.Div(
@@ -119,7 +114,6 @@ layout = html.Div(
     className="parent",
 )
 
-
 @callback(
     Output("modal", "is_open"),
     [Input("open", "n_clicks"), Input("close", "n_clicks")],
@@ -129,4 +123,6 @@ def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
+
+
 
