@@ -44,19 +44,17 @@ def update_output(submit, email, passw):
         else:
             return html.Div(children=[ dbc.Alert("Invalid username or password!", color="dark", className="alert-box")],
                 className='static-info'
-            ), no_update
+            ), '/'
     
     if email == "" or email is None or passw == "" or passw is None:
         return html.Div(children="", style={"padding-left": "550px", "padding-top": "10px"}
-        ), no_update
+        ), '/'
     
     
     return html.Div(
         children=[ dbc.Alert("Invalid username or password!", color="dark", className='alert-box')], className='static-info'
-    ), no_update
+    ), '/'
     
     
-    
-    
-''' changes: last major change is the login path '/' to '/login' '''
+
 

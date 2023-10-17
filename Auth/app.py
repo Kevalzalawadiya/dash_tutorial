@@ -165,7 +165,7 @@ def login(request:requestdetails, db: Session = Depends(get_session)):
     if not verify_password(request.password, hashed_pass):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Incorrect password"    
+            detail="Incorrect password"
         )
     
     access=create_access_token(user.id)
