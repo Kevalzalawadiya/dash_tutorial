@@ -12,8 +12,31 @@ dash.register_page(
     name="dashboard",
 )
 
+''' modal for show pop-up when press the profile icon on nav.'''
+
+
+modal = html.Div(
+    [
+        dbc.Button(html.I(className="fas fa-user"), id="open", n_clicks=0, color="link"),
+        dbc.Modal(
+            [
+                dbc.ModalHeader(dbc.ModalTitle("Header")),
+                dbc.ModalBody("This is the content of the modal"),
+                dbc.ModalFooter(
+                    dbc.Button(
+                        "Close", id="close", className="ms-auto", n_clicks=0
+                    )
+                ),
+            ],
+            id="modal",
+            is_open=False,
+
+        ),
+    ]
+)
 """ nav_iteam can be used for mention links on header parts. """
-nav_item = dbc.NavItem(dbc.NavLink("Sign out", href="#"))
+nav_item = dbc.NavItem([dbc.NavLink("Sign out", href="#")])
+
 dropdown = dbc.DropdownMenu(
     children=[
         dbc.DropdownMenuItem("manageAccount", href='/manageAccount'),
@@ -26,6 +49,7 @@ dropdown = dbc.DropdownMenu(
     label="Menu",
 )
 
+
 """ main layout of dashboard"""
 navbar = html.Div(
     [
@@ -37,8 +61,8 @@ navbar = html.Div(
                             [
                                 dbc.Col(html.Img(src=PLOTLY_LOGO, height="30px")),
                             ],
-                            # align="center",
-                            # className="g-0",
+                            align="center",
+                            className="g-0",
                         ),
                         href="https://myteamplanner.s3.eu-north-1.amazonaws.com/logo.png",
                         style={"textDecoration": "none"},
@@ -46,7 +70,7 @@ navbar = html.Div(
                     dbc.NavbarToggler(id="navbar-toggler2", n_clicks=0),
                     dbc.Collapse(
                         dbc.Nav(
-                            [dropdown, nav_item],
+                            [dropdown, nav_item, modal],
                             className="ms-auto",
                             navbar=True,
                         ),
@@ -57,91 +81,36 @@ navbar = html.Div(
             ),
             color="dark",
             dark=True,
-            # className="mb-5",
         ),
         dcc.Location(id="url"),  # Add the URL location component
     ],
 )
 
-''' slide bar header is atteched on slidebar      '''
-sidebar_header = dbc.Row(
-    [
-        dbc.Col(html.H2("Sidebar", className="display-4")),
-        dbc.Col(
-            [
-                html.Button(
-                    html.Span(className="navbar-toggler-icon"),
-                    className="navbar-toggler",
-                    style={
-                        "color": "rgba(0,0,0,.5)",
-                        "border-color": "rgba(0,0,0,.1)",
-                    },
-                    id="navbar-toggle",
-                ),
-                html.Button(
-                    html.Span(className="navbar-toggler-icon"),
-                    className="navbar-toggler",
-                    style={
-                        "color": "rgba(0,0,0,.5)",
-                        "border-color": "rgba(0,0,0,.1)",
-                    },
-                    id="sidebar-toggle",
-                ),
-            ],
-            width="auto",
-            align="center",
-        ),
-    ],
-)
-
-
-''' this is sidebar i try to mention in logo '''
+''' slide bar header is atteched on slidebar '''
 sidebar = html.Div(
-    [
-        sidebar_header,
-        # we wrap the horizontal rule and short blurb in a div that can be
-        # hidden on a small screen
-        html.Div(
-            [
-                html.Hr(),
-                html.P(
-                    "A responsive sidebar layout with collapsible navigation "
-                    "links.",
-                    className="lead",
-                ),
-            ],
-            id="blurb",
-        ),
-        # use the Collapse component to animate hiding / revealing links
-        dbc.Collapse(
-            dbc.Nav(
-                [
-                    dbc.NavLink("Home", href="/", active="exact"),
-                    dbc.NavLink("Page 1", href="/page-1", active="exact"),
-                    dbc.NavLink("Page 2", href="/page-2", active="exact"),
-                ],
-                vertical=True,
-                pills=True,
-            ),
-            id="collapse",
-        ),
-    ],
-    id="sidebar",
-    className='child'
+    dbc.Nav(
+        [
+            html.H1('sidebar'),
+            html.H2('fadg'),
+        ],
+        vertical=True,
+        pills=True,
+        className="bg-light"
+    )
 )
+
+
 
 
 content = html.Div(id="page-content")
-
-
 
 layout = html.Div(
     children=[
         html.Div(children=[navbar], className="child",),
         html.Div(
             children=[
-                html.Div([sidebar], className="child"),
-                html.Div("content", className="child content"),
+                html.Div([sidebar], className="sidebar-div"),
+                html.Div([content], className="child content"),
             ],
             className="main",
         ),
@@ -152,22 +121,12 @@ layout = html.Div(
 
 
 @callback(
-    Output("sidebar", "className"),
-    [Input("sidebar-toggle", "n_clicks")],
-    [State("sidebar", "className")],
+    Output("modal", "is_open"),
+    [Input("open", "n_clicks"), Input("close", "n_clicks")],
+    [State("modal", "is_open")],
 )
-def toggle_classname(n, classname):
-    if n and classname == "":
-        return "collapsed"
-    return ""
-
-
-@callback(
-    Output("collapse", "is_open"),
-    [Input("navbar-toggle", "n_clicks")],
-    [State("collapse", "is_open")],
-)
-def toggle_collapse(n, is_open):
-    if n:
+def toggle_modal(n1, n2, is_open):
+    if n1 or n2:
         return not is_open
     return is_open
+

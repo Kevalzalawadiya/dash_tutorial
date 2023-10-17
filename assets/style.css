@@ -220,8 +220,18 @@
   border: 1px solid #f58ba2;
 }
 
-
-/* dropdown menu color */
-.dropdown-menu {
-  color: rgb(226, 16, 16);
+.sidebar-div {
+  /* display: flex; */
+  align-items: center;
+  justify-content: center;
+  /* margin: 1%; */
+  padding: 1px;
+  font-size: 100px;
+  line-height: 20px;
+  color: #05468f;
+  background-color: #00000000;
+  /* border-radius: 10px; */
+  border: 1px solid #f58ba2;
 }
+
+
