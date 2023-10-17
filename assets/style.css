@@ -207,15 +207,21 @@
   
 /* --------- Non-flexbox related styles --------- */
 .child {
-  display: flex;
+  /* display: flex; */
   align-items: center;
   justify-content: center;
-  margin: 1%;
-  padding: 10px;
+  /* margin: 1%; */
+  padding: 1px;
   font-size: 20px;
   line-height: 20px;
   color: #ffe8c3;
   background-color: #00000000;
-  border-radius: 10px;
-  border: 10px solid #f5cc8b;
+  /* border-radius: 10px; */
+  border: 1px solid #f58ba2;
+}
+
+
+/* dropdown menu color */
+.dropdown-menu {
+  color: rgb(226, 16, 16);
 }
