@@ -6,7 +6,6 @@ import requests
 
 dash.register_page(__name__, path="/", name="Home")
 
-
 layout = html.Div(className='center-div', children=[
     html.Div(className='simple-form', children=[
         dcc.Input(id="email", type="text", placeholder="Enter Email", className='input-field'),
@@ -23,7 +22,6 @@ layout = html.Div(className='center-div', children=[
     ]),
 ])
            
-    
 
 @callback(
     Output("output1", "children"),
@@ -40,6 +38,7 @@ def update_output(submit, email, passw):
         print("Response : ------------> ", response)
 
         if response.status_code == 200:
+            
             return html.Div(), '/dashboard'
         else:
             return html.Div(children=[ dbc.Alert("Invalid username or password!", color="dark", className="alert-box")],
@@ -56,7 +55,3 @@ def update_output(submit, email, passw):
     ), '/'
     
     
-
-
-
-

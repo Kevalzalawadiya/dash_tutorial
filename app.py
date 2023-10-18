@@ -1,10 +1,13 @@
 import dash
-from dash import Dash, html, dcc
 import dash_bootstrap_components as dbc
+from dash import Dash, dcc, html, callback, Output, Input, State, no_update
+import dash_bootstrap_components as dbc
+import requests 
+import dash
 
 
+app = dash.Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.BOOTSTRAP,])
 
 app.layout = html.Div([
     html.Div([
@@ -21,6 +24,4 @@ app.layout = html.Div([
 
 if __name__ == '__main__':
     app.run(debug=True)
-    
-    
     

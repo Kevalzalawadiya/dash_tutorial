@@ -12,26 +12,22 @@ dash.register_page(
     name="dashboard",
 )
 
-''' modal for show pop-up when press the profile icon on nav.'''
-
-modal = html.Div(
-    [
-        dbc.Button(html.I(className="fas fa-user"), id="open", n_clicks=0, color="link"),
-        dbc.Modal(
-            [
-                dbc.ModalHeader(dbc.ModalTitle("Header")),
-                dbc.ModalBody("This is the content of the modal"),
-                dbc.ModalFooter(
-                    dbc.Button(
-                        "Close", id="close", className="ms-auto", n_clicks=0
-                    )
-                ),
-            ],
-            id="modal",
-            is_open=False,
-
-        ),
-    ]
+''' menu for show pop-up when press the profile icon on nav.'''
+profile = dbc.DropdownMenu(
+    children=[
+        html.Div([html.H6('Account')], style={'padding': '5px'}),
+        html.Div([html.Label(id='user-details')], style={'padding': '5px'}),
+        dbc.DropdownMenuItem("manageAccount", href='/manageAccount'),
+        dbc.DropdownMenuItem("Entry 2"),
+        dbc.DropdownMenuItem(divider=True),
+        dbc.DropdownMenuItem("Entry 3"),
+    ],
+    nav=True,
+    in_navbar=True,
+    label=html.I(className="fas fa-user"),
+    direction='down',
+    caret=False,
+    right=True
 )
 """ nav_iteam can be used for mention links on header parts. """
 nav_item = dbc.NavItem([dbc.NavLink("Sign out", href="#")])
@@ -68,7 +64,7 @@ navbar = html.Div(
                     dbc.NavbarToggler(id="navbar-toggler2", n_clicks=0),
                     dbc.Collapse(
                         dbc.Nav(
-                            [dropdown, nav_item, modal],
+                            [dropdown, nav_item, profile],
                             className="ms-auto",
                             navbar=True,
                         ),
@@ -113,16 +109,6 @@ layout = html.Div(
     ],
     className="parent",
 )
-
-@callback(
-    Output("modal", "is_open"),
-    [Input("open", "n_clicks"), Input("close", "n_clicks")],
-    [State("modal", "is_open")],
-)
-def toggle_modal(n1, n2, is_open):
-    if n1 or n2:
-        return not is_open
-    return is_open
 
 
 
