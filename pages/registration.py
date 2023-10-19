@@ -37,7 +37,7 @@ def register_user(n_clicks, username, email, password):
     if n_clicks:
         data = {"username": username, "email": email, "password": password}
         print("DATA -------------> ", data)
-        response = requests.post("http://127.0.0.1:8000/register", json=data)
+        response = requests.post("http://127.0.0.1:8000/account/register", json=data)
         print("Response : ------------> ", response)
 
         if response.status_code == 200:
