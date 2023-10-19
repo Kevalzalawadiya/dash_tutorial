@@ -14,6 +14,8 @@ from .models import *
 from .schema import *
 from config.settings import *
 from .auth_bearer import *
+from sqlalchemy.orm import Session
+from fastapi import Depends, HTTPException
 
 
 Base.metadata.create_all(bind=engine)
@@ -134,14 +136,20 @@ def login(request: requestdetails,response: Response, db: Session = Depends(get_
     result = {"access_token": access, "refresh_token": refresh, "session_token": session_token, "message": "Login Successful"}
     return result
 
+
+
 @router.get("/protected")
-def protected_route( response: Response, current_user: str = Depends(get_current_user),db: Session = Depends(get_session)):
-    if not is_session_valid(current_user, db):
+def protected_route(response: Response, current_user: str = Depends(get_current_user), db: Session = Depends(get_session)):
+    # Example of correct usage of the Session object
+    # You should replace this with your actual database query.
+    # In this example, we're assuming a User model and a session_token column.
+    user = db.query(User).filter(User.session_token == current_user).first()
+
+    if not user:
         response.delete_cookie("session_token")
         raise HTTPException(status_code=401, detail="Session has expired")
 
     return {"message": "This is a protected route"}
-    
 
 
 
