@@ -16,7 +16,6 @@ class TokenTable(Base):
     user_id = Column(Integer, primary_key=True, index=True)
     access_token = Column(String(450), primary_key=True)
     refresh_token = Column(String(450), nullable=False)
-    session_token = Column(String, index=True)
     status = Column(Boolean)
     created_date = Column(DateTime, default=func.now())
 
