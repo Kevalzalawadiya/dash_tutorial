@@ -31,40 +31,6 @@ router = APIRouter()
 #PAssword patten
 PASSWORD_PATTERN = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*])[A-Za-z\d@#$%^&*]{8,}$"
 
-#session timeout
-SESSION_TIMEOUT_MINUTES = 30
-
-#session management
-
-# Function to generate a secure session token
-def generate_session_token(length=32):
-    characters = string.ascii_letters + string.digits
-    session_token = ''.join(secrets.choice(characters) for i in range(length))
-    return session_token
-
-# Function to create a session cookie
-def create_session_cookie(session_token: str, response: Response):
-    response.set_cookie(key="session_token", value=session_token, httponly=True)
-
-# Function to store session in the database
-def store_session_to_db(session_token: str, user_id: int, db):
-    session = Session(session_token=session_token, user_id=user_id)
-    db.add(session)
-    db.commit()
-
-def get_current_user(session_token: str = Cookie(None)):
-    return session_token
-
-# Function to check if session is valid
-def is_session_valid(session_token: str, db) -> bool:
-    session = db.query(Session).filter_by(session_token=session_token).first()
-    if session:
-        now = datetime.utcnow()
-        session_lifetime = timedelta(minutes=SESSION_TIMEOUT_MINUTES)
-        return (now - session.creation_time) < session_lifetime
-    return False
-
-
 
 
 #User  registration
@@ -94,7 +60,6 @@ def register_user(user: UserCreate, session: Session = Depends(get_session)):
 
     return {"message": "User created successfully"}
 
-
 #User Login
 @router.post('/login', response_model=TokenSchema)
 def login(request: requestdetails,response: Response, db: Session = Depends(get_session)):
@@ -121,36 +86,13 @@ def login(request: requestdetails,response: Response, db: Session = Depends(get_
     access = create_access_token(user.id)
     refresh = create_refresh_token(user.id)
 
-    # Generate a session token
-    session_token = generate_session_token()
-
-    # Store the session to the database
-    token_db = TokenTable(user_id=user.id, access_token=access, refresh_token=refresh, session_token=session_token, status=True)
+    token_db = TokenTable(user_id=user.id, access_token=access, refresh_token=refresh, status=True)
     db.add(token_db)
     db.commit()
     db.refresh(token_db)
 
-    # Set the session token as a cookie
-    create_session_cookie(session_token, response)
-
-    result = {"access_token": access, "refresh_token": refresh, "session_token": session_token, "message": "Login Successful"}
+    result = {"access_token": access, "refresh_token": refresh, "message": "Login Successful"}
     return result
-
-
-
-@router.get("/protected")
-def protected_route(response: Response, current_user: str = Depends(get_current_user), db: Session = Depends(get_session)):
-    # Example of correct usage of the Session object
-    # You should replace this with your actual database query.
-    # In this example, we're assuming a User model and a session_token column.
-    user = db.query(User).filter(User.session_token == current_user).first()
-
-    if not user:
-        response.delete_cookie("session_token")
-        raise HTTPException(status_code=401, detail="Session has expired")
-
-    return {"message": "This is a protected route"}
-
 
 
 #Change password
