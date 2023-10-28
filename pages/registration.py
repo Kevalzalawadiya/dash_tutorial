@@ -3,12 +3,11 @@ import dash_bootstrap_components as dbc
 import requests
 from dash import html, dcc,Output,Input,callback, no_update
 import requests
-
+import re
 dash.register_page(__name__, path='/registration', name='registration')
 
-layout = html.Div(className="simple-form", children=[
-    
-])
+PASSWORD_PATTERN = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*])[A-Za-z\d@#$%^&*]{8,}$"
+
 layout = html.Div(className='center-div', children=[
     html.Div(className='simple-form', children=[
         html.H2("Registration Form"),
@@ -37,15 +36,18 @@ def register_user(n_clicks, username, email, password):
     if n_clicks:
         data = {"username": username, "email": email, "password": password}
         print("DATA -------------> ", data)
-        response = requests.post("http://127.0.0.1:8000/account/register", json=data)
-        print("Response : ------------> ", response)
 
-        if response.status_code == 200:
-            return html.Div(), '/'
+        if re.match(PASSWORD_PATTERN, password):
+            response = requests.post("http://127.0.0.1:8000/account/register", json=data)
+            print("Response : ------------> ", response)
+            if response.status_code == 200:
+                return html.Div(), '/registration'
+            return html.Div(), no_update
+        
         else:
-            return html.Div(children=[dbc.Alert("Invalid username or password!", color="dark", className="alert-box")],
+            return html.Div(children=[dbc.Alert("Password must meet the valid pattern.", color="dark", className="alert-box")],
                             className='static-info'
-                            ), '/'
+                            ), no_update
 
     return no_update, no_update
 
