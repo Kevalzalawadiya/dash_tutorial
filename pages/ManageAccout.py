@@ -173,7 +173,7 @@ def change_password(n_clicks, email, old_password, new_password):
     if n_clicks:
         data = {"email":email ,"old_password": old_password, "new_password": new_password}
         print("DATA -------------> ", data)
-        response = requests.post("http://127.0.0.1:8000/change-password", json=data)
+        response = requests.post("http://127.0.0.1:8000/account/change-password", json=data)
         print("Response : ------------> ", response)
 
         if response.status_code == 200:

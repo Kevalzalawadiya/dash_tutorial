@@ -34,7 +34,7 @@ def update_output(submit, email, passw):
     if submit:
         data = {"email": email, "password": passw}
         print("DATA -------------> ", data)
-        response = requests.post("http://localhost:8000/login", json=data)
+        response = requests.post("http://localhost:8000/account/login", json=data)
         print("Response : ------------> ", response)
 
         if response.status_code == 200:
