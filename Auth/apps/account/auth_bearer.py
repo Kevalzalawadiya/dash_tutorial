@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from typing import Union
 from jose import jwt
-from .models import *
+from apps.account.models import *
 # from database import *
 # from schema import *
 from functools import wraps

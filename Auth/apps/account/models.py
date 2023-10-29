@@ -1,26 +1,29 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, func
 
-from config.settings import Base
+from sqlalchemy import Column, Integer, String,Boolean, DateTime, func
 from sqlalchemy.orm import relationship
-from .models import ProjectDeveloper, Project
-
-
-
-
+from config.settings import *
+from apps.project.models import *
 
 class User(Base):
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
-    username = Column(String(50),  nullable=False)
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(50), nullable=False)
     email = Column(String(100), unique=True, nullable=False)
     password = Column(String(100), nullable=False)
 
-    projects=relationship("Project", back_populates="user")
-    projectdevelopers = relationship("ProjectDeveloper", back_populates="user")
-    tasks = relationship("Tasks", back_populates="user")
-    tasks_create = relationship("Tasks", back_populates="user_create")
-    tasks_deleted_by = relationship("Tasks", back_populates="user_deleted_by")
-    taskplanner = relationship("TaskPlanner", back_populates="user_name")
+    projectsdv = relationship("Project", back_populates="user",foreign_keys=[Project.manage_by])
+    projectdevelopers = relationship("ProjectDeveloper", back_populates="user",foreign_keys=[ProjectDeveloper.developer])
+    tasks = relationship("Tasks", back_populates="user",foreign_keys=[Tasks.assignee])
+    tasks_create = relationship("Tasks", back_populates="user_create",foreign_keys=[Tasks.created])
+    tasks_deleted_by = relationship("Tasks", back_populates="user_deleted_by",foreign_keys=[Tasks.deleted_by])
+    taskplanner = relationship("TaskPlanner", back_populates="user_name",foreign_keys=[TaskPlanner.user])
+
+
+
+
+
+
 
 
 class TokenTable(Base):

@@ -1,7 +1,7 @@
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
-from fastapi import FastAPI, Depends, HTTPException, status,Response,Cookie
+from fastapi import FastAPI, Depends, HTTPException, status,Response,Cookie,APIRouter 
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -9,13 +9,12 @@ import re
 import secrets
 import string
 import smtplib
-from fastapi import APIRouter
-from .models import *
 from .schema import *
 from config.settings import *
-from .auth_bearer import *
-from sqlalchemy.orm import Session
-from fastapi import Depends, HTTPException
+from apps.account.auth_bearer import *
+
+
+
 
 
 Base.metadata.create_all(bind=engine)
