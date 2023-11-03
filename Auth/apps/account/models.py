@@ -18,6 +18,7 @@ class User(Base):
     tasks_create = relationship("Tasks", back_populates="user_create",foreign_keys=[Tasks.created])
     tasks_deleted_by = relationship("Tasks", back_populates="user_deleted_by",foreign_keys=[Tasks.deleted_by])
     taskplanner = relationship("TaskPlanner", back_populates="user_name",foreign_keys=[TaskPlanner.user])
+    projects = relationship("Project", secondary="project_developer", back_populates="developers")
 
 
 
