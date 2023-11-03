@@ -1,14 +1,11 @@
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
-from fastapi import FastAPI, Depends, HTTPException, status,Response,Cookie,APIRouter 
+from fastapi import  Depends, HTTPException, status,Response,APIRouter 
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import re
-import secrets
-import string
-import smtplib
+import smtplib,re
 from .schema import *
 from config.settings import *
 from apps.account.auth_bearer import *
@@ -29,7 +26,7 @@ PASSWORD_PATTERN = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*])[A-Za-z\d@#$%
 
 #User  registration
 @router.post("/register")
-def register_user(user: UserCreate, session: Session = Depends(get_session)):
+async def register_user(user: UserCreate, session: Session = Depends(get_session)):
     existing_user = session.query(User).filter_by(email=user.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -56,7 +53,7 @@ def register_user(user: UserCreate, session: Session = Depends(get_session)):
 
 #User Login
 @router.post('/login', response_model=TokenSchema)
-def login(request: requestdetails,response: Response, db: Session = Depends(get_session)):
+async def login(request: requestdetails,response: Response, db: Session = Depends(get_session)):
     user = db.query(User).filter(User.email == request.email).first()
     if user is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect email")
@@ -91,7 +88,7 @@ def login(request: requestdetails,response: Response, db: Session = Depends(get_
 
 #Change password
 @router.post('/changepassword')
-def change_password(request:changepassword, db: Session = Depends(get_session)):
+async def change_password(request:changepassword, db: Session = Depends(get_session)):
     user = db.query(User).filter(User.email == request.email).first()
     if user is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found")
@@ -120,7 +117,7 @@ def change_password(request:changepassword, db: Session = Depends(get_session)):
 SECRET_KEY = "narscbjim@$@&^@&%^&RFghgjvb545435sha"
 PASSWORD_RESET_SECRET_KEY = "1584ugfdfgh@#$%^@&jkl45678902"
 
-def create_password_reset_token(email: str, expires_delta: timedelta = timedelta(hours=1)):
+async def create_password_reset_token(email: str, expires_delta: timedelta = timedelta(hours=1)):
     to_encode = {"email": email, "exp": datetime.utcnow() + expires_delta}
     encoded_token = jwt.encode(to_encode, PASSWORD_RESET_SECRET_KEY, algorithm=ALGORITHM)
     return encoded_token
@@ -128,7 +125,7 @@ def create_password_reset_token(email: str, expires_delta: timedelta = timedelta
 email_address = "aayushi.fichadiya@gmail.com" # type Email
 email_password = "rpyq nluu bmfx aafk"
 
-def send_reset_email(email, token):
+async def send_reset_email(email, token):
     msg = MIMEMultipart()
     msg['From'] = email_address  # Replace with your Gmail email
     msg['To'] = email
@@ -186,7 +183,7 @@ async def reset_password(reset_data: ResetPassword, db: Session = Depends(get_se
 
 #Logout
 @router.post('/logout')
-def logout(dependencies=Depends(JWTBearer()), db: Session = Depends(get_session)):
+async def logout(dependencies=Depends(JWTBearer()), db: Session = Depends(get_session)):
     token=dependencies
     payload = jwt.decode(token, JWT_SECRET_KEY, ALGORITHM)
     user_id = payload['sub']

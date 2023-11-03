@@ -22,6 +22,16 @@ class Project(Base):
     workflowstages = relationship("WorkFlowStages", back_populates="project_name")
     projectdevelopers = relationship("ProjectDeveloper", back_populates="project_name")  
     tasks = relationship("Tasks", back_populates="project_name")
+    developers = relationship("User", secondary="project_developer", back_populates="projects")
+
+
+
+project_developer = Table(
+    "project_developer",
+    Base.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("developer_id", Integer, ForeignKey("users.id"))
+)
 
 
 
