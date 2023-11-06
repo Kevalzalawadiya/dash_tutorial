@@ -78,6 +78,7 @@ class ProjectDeveloper(Base):
     roles = relationship("Role", back_populates="projectdevelopers")
 
 
+
 class Sprint(Base):
     __tablename__ = "sprints"
 
