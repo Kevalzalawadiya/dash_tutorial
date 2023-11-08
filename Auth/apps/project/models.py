@@ -9,12 +9,12 @@ class Project(Base):
     __tablename__ = "projects"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(32), nullable=False)
-    short_name = Column(String(3), nullable=False)
+    name = Column(String(40 ), nullable=False)
+    short_name = Column(String(3), nullable=False)  
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
     is_active = Column(Boolean, default=True)
-    recipient = Column(ARRAY(String(length=255), dimensions=1), nullable=True)
+    # recipient = Column(ARRAY(String(length=255), dimensions=1), nullable=True)
     manage_by = Column(Integer, ForeignKey('users.id'))
 
 
@@ -25,7 +25,6 @@ class Project(Base):
     developers = relationship("User", secondary="project_developer", back_populates="projects")
 
 
-
 project_developer = Table(
     "project_developer",
     Base.metadata,
@@ -33,35 +32,21 @@ project_developer = Table(
     Column("developer_id", Integer, ForeignKey("users.id"))
 )
 
-
-
-
-
-
-
 class WorkFlowStages(Base):
     __tablename__ = "workflowstages"
-
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     project = Column(Integer, ForeignKey('projects.id'))
-
-
     project_name = relationship("Project", back_populates="workflowstages")
     Tasks = relationship("Tasks", back_populates="workflowstages")
 
 
-
 class Role(Base):
     __tablename__ = "roles"
-
     id =Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     can_create_task = Column(Boolean, default=False)
-
     projectdevelopers = relationship("ProjectDeveloper", back_populates="roles")
-
-
 
 class ProjectDeveloper(Base):
     __tablename__ = "projectdevelopers"
@@ -72,11 +57,9 @@ class ProjectDeveloper(Base):
     is_active = Column(Boolean, default=True)
     developer = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
     role = Column(Integer, ForeignKey('roles.id', ondelete='CASCADE'))
-
     project_name = relationship("Project", back_populates="projectdevelopers")
     user = relationship("User", back_populates="projectdevelopers",foreign_keys=[developer])
     roles = relationship("Role", back_populates="projectdevelopers")
-
 
 
 class Sprint(Base):
@@ -87,7 +70,6 @@ class Sprint(Base):
     description = Column(String, nullable=False)
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
-
     tasks = relationship("Tasks", back_populates="sprints")
   
 

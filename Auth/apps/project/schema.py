@@ -4,15 +4,26 @@ from typing import Optional, List
 from apps.account.models import *
 
 
+
 class PojectCreate(BaseModel):
     name: str
     short_name: str
     start_date: str
     end_date: str
-    is_active: Boolean
-    recipient: Optional[List[str]] = []
+    is_active: bool  # Use 'bool' instead of 'Boolean'
+    # recipient: Optional[List[str]] = []
     manage_by: int
 
+    
+class ProjectResponse(BaseModel):
+    id: int
+    name: str
+    short_name: str
+    start_date: datetime
+    end_date: datetime
+    is_active: bool
+    # recipient: list
+    manage_by: int
 
 class ProjectCreate(PojectCreate):
     pass
@@ -20,6 +31,9 @@ class ProjectCreate(PojectCreate):
 class ProjectUpdate(PojectCreate):
     pass
 
+class MessageResponse(BaseModel):
+    message: str
+    
 class ProjectInDB(PojectCreate):
     id: int
 
@@ -42,13 +56,13 @@ class Workflowstages(BaseModel):
 
 class Role(BaseModel):
     name :str
-    can_create_task : Boolean
+    can_create_task : bool
 
 
 class ProjectDeveloper(BaseModel):
     project : int
     created : datetime
-    is_active : Boolean
+    is_active : bool
     developer : int
     role : int
 
@@ -64,7 +78,7 @@ class Task(BaseModel):
     title :str
     created_at : datetime
     resolved_at : datetime
-    estimate_time : Boolean
+    estimate_time : bool
     is_deleted : datetime
     assignee : int
     project : int
