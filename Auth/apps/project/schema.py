@@ -48,10 +48,25 @@ class CustomBooleanField(BaseModel):
 class ProjectBaseWithCustomBoolean(PojectCreate):
     is_active: CustomBooleanField
 
-
-class Workflowstages(BaseModel):
+#workflow
+class CreateWorkflowstages(BaseModel):
     name :str
-    project : int 
+    id : int 
+
+class WorkflowStageResponse(BaseModel):
+    id: int
+    name: str
+    id: int
+
+class WorkflowStageInDB(CreateWorkflowstages):
+    id: int
+
+class WorkflowStageOut(WorkflowStageInDB):
+    pass
+
+class WorkflowStageListResponse(BaseModel):
+    items: List[WorkflowStageResponse]
+
 
 
 class Role(BaseModel):
@@ -67,14 +82,22 @@ class ProjectDeveloper(BaseModel):
     role : int
 
 
-class Sprint(BaseModel):
+class SprintBase(BaseModel):
     name :str
     description :str
     start_date : datetime
     end_date : datetime
 
+class SprintCreate(SprintBase):
+    pass
 
-class Task(BaseModel):
+class SprintResponse(SprintBase):
+    id: int
+
+class SprintListResponse(BaseModel):
+    items: List[SprintResponse]
+
+class Taskcreate(BaseModel):
     title :str
     created_at : datetime
     resolved_at : datetime

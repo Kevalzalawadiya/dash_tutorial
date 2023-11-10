@@ -1,10 +1,11 @@
 from apps.project.models import *
+from apps.project.models import Sprint
 from config.settings import *
 from fastapi import APIRouter, Depends,HTTPException
 from sqlalchemy.orm import Session
 from apps.project.schema import *
 from fastapi.encoders import jsonable_encoder
-
+from typing import List
 
 Base.metadata.create_all(bind=engine)
 project_router = APIRouter()
@@ -15,6 +16,7 @@ async def create_project(project: PojectCreate, session: Session = Depends(get_s
     start_date = datetime.strptime(project.start_date, '%Y-%m-%d')
     end_date = datetime.strptime(project.end_date, '%Y-%m-%d')
 
+
     db_project = Project(
         name=project.name,
         short_name=project.short_name,
@@ -23,6 +25,7 @@ async def create_project(project: PojectCreate, session: Session = Depends(get_s
         is_active=project.is_active,
         manage_by=project.manage_by
     )
+
     session.add(db_project)
     session.commit()
     session.refresh(db_project)
@@ -91,5 +94,104 @@ async def delete_project(project_id: int, session: Session = Depends(get_session
     # Delete the project from the database
     session.delete(db_project)
     session.commit()
-
     return MessageResponse(message="Project successfully deleted")
+
+
+#workflow created
+@project_router.post("/workflowstages", response_model=WorkflowStageResponse)
+async def create_workflow_stage(stage: CreateWorkflowstages, session: Session = Depends(get_session)):
+    db_stage = WorkFlowStages(**stage.dict())
+    session.add(db_stage)
+    session.commit()
+    session.refresh(db_stage)
+    return db_stage
+
+# Get a list of workflow stages
+@project_router.get("/workflowstages", response_model=List[WorkflowStageResponse])
+async def list_workflow_stages(session: Session = Depends(get_session)):
+    stages = session.query(WorkFlowStages).all()
+    return jsonable_encoder(stages)
+
+# Get a specific workflow stage by ID
+@project_router.get("/workflowstages/{stage_id}", response_model=WorkflowStageResponse)
+async def get_workflow_stage(stage_id: int, session: Session = Depends(get_session)):
+    stage = session.query(WorkFlowStages).filter(WorkFlowStages.id == stage_id).first()
+    if not stage:
+        raise HTTPException(status_code=404, detail="Workflow stage not found")
+    return stage
+
+# Update a workflow stage
+@project_router.put("/workflowstages/{stage_id}", response_model=WorkflowStageResponse)
+async def update_workflow_stage(stage_id: int, stage: CreateWorkflowstages, session: Session = Depends(get_session)):
+    db_stage = session.query(WorkFlowStages).filter(WorkFlowStages.id == stage_id).first()
+    if not db_stage:
+        raise HTTPException(status_code=404, detail="Workflow stage not found")
+    
+    for field, value in stage.dict().items():
+        setattr(db_stage, field, value)
+
+    session.commit()
+    session.refresh(db_stage)
+    
+    return db_stage
+
+# Delete a workflow stage
+@project_router.delete("/workflowstages/{stage_id}", response_model=MessageResponse)
+async def delete_workflow_stage(stage_id: int, session: Session = Depends(get_session)):
+    db_stage = session.query(WorkFlowStages).filter(WorkFlowStages.id == stage_id).first()
+    if not db_stage:
+        raise HTTPException(status_code=404, detail="Workflow stage not found")
+    
+    session.delete(db_stage)
+    session.commit()
+    return MessageResponse(message="Workflow stage successfully deleted")
+
+#sprint_created 
+@project_router.post("/sprints", response_model=SprintResponse)
+async def create_sprint(sprint: SprintCreate, session: Session = Depends(get_session)):
+    db_sprint = Sprint(**sprint.dict())
+    session.add(db_sprint)
+    session.commit()
+    session.refresh(db_sprint)
+    return db_sprint
+
+
+@project_router.get("/sprints", response_model=List[SprintResponse])
+async def list_sprints(session: Session = Depends(get_session)):
+    sprints = session.query(Sprint).all()
+    return jsonable_encoder(sprints)
+
+# Get a specific sprint by ID
+@project_router.get("/sprints/{sprint_id}", response_model=SprintResponse)
+async def get_sprint(sprint_id: int, session: Session = Depends(get_session)):
+    sprint = session.query(Sprint).filter(Sprint.id == sprint_id).first()
+    if not sprint:
+        raise HTTPException(status_code=404, detail="Sprint not found")
+    return sprint
+
+# Update a sprint
+@project_router.put("/sprints/{sprint_id}", response_model=SprintResponse)
+async def update_sprint(sprint_id: int, sprint: SprintCreate, session: Session = Depends(get_session)):
+    db_sprint = session.query(Sprint).filter(Sprint.id == sprint_id).first()
+    if not db_sprint:
+        raise HTTPException(status_code=404, detail="Sprint not found")
+    
+    for field, value in sprint.dict().items():
+        setattr(db_sprint, field, value)
+
+    session.commit()
+    session.refresh(db_sprint)
+    
+    return db_sprint
+
+# Delete a sprint
+@project_router.delete("/sprints/{sprint_id}", response_model=MessageResponse)
+async def delete_sprint(sprint_id: int, session: Session = Depends(get_session)):
+    db_sprint = session.query(Sprint).filter(Sprint.id == sprint_id).first()
+    if not db_sprint:
+        raise HTTPException(status_code=404, detail="Sprint not found")
+    
+    session.delete(db_sprint)
+    session.commit()
+    
+    return MessageResponse(message="Sprint successfully deleted")
