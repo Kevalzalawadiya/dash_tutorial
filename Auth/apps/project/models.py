@@ -24,7 +24,7 @@ class Project(Base):
     tasks = relationship("Tasks", back_populates="project_name")
     developers = relationship("User", secondary="project_developer", back_populates="projects")
 
-
+    
 project_developer = Table(
     "project_developer",
     Base.metadata,
@@ -50,7 +50,7 @@ class Role(Base):
 
 class ProjectDeveloper(Base):
     __tablename__ = "projectdevelopers"
-
+    
     id = Column(Integer, primary_key=True, index=True)
     project = Column(Integer, ForeignKey('projects.id', ondelete='CASCADE'))
     created = Column(DateTime, default=func.now())

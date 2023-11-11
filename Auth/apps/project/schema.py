@@ -41,10 +41,8 @@ class ProjectOut(ProjectInDB):
     pass
 
 class CustomBooleanField(BaseModel):
-    # Custom Pydantic model for handling SQLAlchemy Boolean type
     value: bool
 
-# Use CustomBooleanField in the ProjectBase model
 class ProjectBaseWithCustomBoolean(PojectCreate):
     is_active: CustomBooleanField
 
@@ -69,19 +67,38 @@ class WorkflowStageListResponse(BaseModel):
 
 
 
-class Role(BaseModel):
+class RoleBase(BaseModel):
     name :str
     can_create_task : bool
 
+class RoleCreate(RoleBase):
+    pass
 
-class ProjectDeveloper(BaseModel):
+class RoleResponse(RoleBase):
+    id: int
+
+class RoleListResponse(BaseModel):
+    items: list[RoleResponse]
+
+
+
+class ProjectDeveloperBase(BaseModel):
     project : int
     created : datetime
     is_active : bool
     developer : int
     role : int
 
+class ProjectDeveloperCreate(ProjectDeveloperBase):
+    pass
 
+class ProjectDeveloperResponse(ProjectDeveloperBase):
+    id: int
+
+class ProjectDeveloperListResponse(BaseModel):
+    items: list[ProjectDeveloperResponse]
+
+#sprint
 class SprintBase(BaseModel):
     name :str
     description :str

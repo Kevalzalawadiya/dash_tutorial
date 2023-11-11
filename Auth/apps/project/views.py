@@ -190,8 +190,57 @@ async def delete_sprint(sprint_id: int, session: Session = Depends(get_session))
     db_sprint = session.query(Sprint).filter(Sprint.id == sprint_id).first()
     if not db_sprint:
         raise HTTPException(status_code=404, detail="Sprint not found")
-    
     session.delete(db_sprint)
     session.commit()
-    
     return MessageResponse(message="Sprint successfully deleted")
+
+#role assign
+@project_router.post("/roles", response_model=RoleResponse)
+async def create_role(role: RoleCreate, session: Session = Depends(get_session)):
+    db_role = Role(**role.dict())
+    session.add(db_role)
+    session.commit()
+    session.refresh(db_role)
+    return db_role
+
+@project_router.get("/roles", response_model=RoleListResponse)
+async def list_roles(session: Session = Depends(get_session)):
+    roles = session.query(Role).all()
+    return {"items": roles}
+
+@project_router.post("/projectdevelopers", response_model=ProjectDeveloperResponse)
+async def create_project_developer(developer: ProjectDeveloperCreate, session: Session = Depends(get_session)):
+    try:
+        # Validate that the provided role_id exists in the roles table
+        role_exists = session.query(Role).filter(Role.id == developer.role).first()
+        if not role_exists:
+            raise HTTPException(status_code=400, detail="Invalid role_id")
+
+        db_project_developer = ProjectDeveloper(**developer.dict())
+        session.add(db_project_developer)
+        session.commit()
+        session.refresh(db_project_developer)
+        return db_project_developer
+    finally:
+        session.close()
+
+
+
+
+
+@project_router.get("/projectdevelopers", response_model=ProjectDeveloperListResponse)
+async def list_project_developers(session: Session = Depends(get_session)):
+    project_developers = session.query(ProjectDeveloper).all()
+    return {"items": project_developers}
+
+
+
+
+
+
+
+
+
+
+
+
