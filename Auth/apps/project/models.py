@@ -9,7 +9,7 @@ class Project(Base):
     __tablename__ = "projects"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(40 ), nullable=False)
+    name = Column(String(40), nullable=False)
     short_name = Column(String(3), nullable=False)  
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
@@ -24,7 +24,7 @@ class Project(Base):
     tasks = relationship("Tasks", back_populates="project_name")
     developers = relationship("User", secondary="project_developer", back_populates="projects")
 
-    
+
 project_developer = Table(
     "project_developer",
     Base.metadata,
@@ -38,8 +38,7 @@ class WorkFlowStages(Base):
     name = Column(String, nullable=False)
     project = Column(Integer, ForeignKey('projects.id'))
     project_name = relationship("Project", back_populates="workflowstages")
-    Tasks = relationship("Tasks", back_populates="workflowstages")
-
+    tasks = relationship("Tasks", back_populates="workflowstage")
 
 class Role(Base):
     __tablename__ = "roles"
@@ -50,7 +49,7 @@ class Role(Base):
 
 class ProjectDeveloper(Base):
     __tablename__ = "projectdevelopers"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     project = Column(Integer, ForeignKey('projects.id', ondelete='CASCADE'))
     created = Column(DateTime, default=func.now())
@@ -72,35 +71,52 @@ class Sprint(Base):
     end_date = Column(DateTime, nullable=False)
     tasks = relationship("Tasks", back_populates="sprints")
   
+# class Tasks(Base):
+#     __tablename__ = "tasks"
+#     id = Column(Integer, primary_key=True, index=True)
+#     task_title = Column(String, nullable=False)
+#     created_at = Column(DateTime, default=func.now())
+#     resolved_at = Column(DateTime, nullable=True)
+#     estimate_time = Column(String, default='00:00')
+#     is_deleted = Column(Boolean, default=False)
+#     deleted_at = Column(DateTime, nullable=True)
+#     assignee = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
+#     project = Column(Integer, ForeignKey('projects.id', ondelete='CASCADE'))
+#     sprint = Column(Integer, ForeignKey('sprints.id', ondelete='CASCADE'))
+#     workflowstage_id = Column(Integer, ForeignKey('workflowstages.id'))
+#     created = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
+#     deleted_by = Column(Integer, ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
+
+#     user = relationship("User", back_populates="tasks", foreign_keys=[assignee])
+#     project_name = relationship("Project", back_populates="tasks")
+#     sprints = relationship("Sprint", back_populates="tasks")
+#     workflowstage = relationship("WorkFlowStages", back_populates="tasks")
+#     user_create = relationship("User", back_populates="tasks_create", foreign_keys=[created])
+#     user_deleted_by = relationship("User", back_populates="tasks_deleted_by", foreign_keys=[deleted_by])
+
 
 class Tasks(Base):
-    __tablename__ = "tasks"
-
-
+    __tablename__ = "task"
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String,nullable=False)
+    task_title = Column(String, nullable=False)
     created_at = Column(DateTime, default=func.now())
-    resolved_at = Column(DateTime,nullable=True)
-    estimate_time = Column(Boolean, default='00:00')
+    resolved_at = Column(DateTime, nullable=True)
+    estimate_time = Column(String, default='00:00')
     is_deleted = Column(Boolean, default=False)
-    deleted_at = Column(DateTime,nullable=True)
+    deleted_at = Column(DateTime, nullable=True)
     assignee = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
-    project = Column(Integer, ForeignKey('projects.id', ondelete='CASCADE'))
-    sprint = Column(Integer, ForeignKey('sprints.id', ondelete='CASCADE')) 
-    stage = Column(Integer, ForeignKey('workflowstages.id', ondelete='CASCADE'))
+    project_id = Column(Integer, ForeignKey('projects.id', ondelete='CASCADE'))  # Change this line
+    sprint = Column(Integer, ForeignKey('sprints.id', ondelete='CASCADE'))
+    workflowstage_id = Column(Integer, ForeignKey('workflowstages.id'))
     created = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
-    deleted_by = Column(Integer, ForeignKey('users.id',ondelete='SET NULL'),nullable=True)
+    deleted_by = Column(Integer, ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
 
-     
-
-    user = relationship("User", back_populates="tasks",foreign_keys=[assignee])
+    user = relationship("User", back_populates="tasks", foreign_keys=[assignee])
     project_name = relationship("Project", back_populates="tasks")
     sprints = relationship("Sprint", back_populates="tasks")
-    workflowstages = relationship("WorkFlowStages", back_populates="Tasks")
-    user_create = relationship("User", back_populates="tasks_create",foreign_keys=[created])
-    user_deleted_by = relationship("User", back_populates="tasks_deleted_by",foreign_keys=[deleted_by])
-
-
+    workflowstage = relationship("WorkFlowStages", back_populates="tasks")
+    user_create = relationship("User", back_populates="tasks_create", foreign_keys=[created])
+    user_deleted_by = relationship("User", back_populates="tasks_deleted_by", foreign_keys=[deleted_by])
 
 
 
@@ -130,11 +146,22 @@ class TaskPlanner(Base):
         if value not in self.STATUS:
             raise ValueError(f"Invalid status value: {value}")
         return value
+    
+    
 
     
-   
+
+
+
+
 
     
+
+
+
+
+
+
 
 
 

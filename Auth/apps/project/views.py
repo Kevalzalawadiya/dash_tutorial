@@ -1,11 +1,12 @@
 from apps.project.models import *
-from apps.project.models import Sprint
 from config.settings import *
 from fastapi import APIRouter, Depends,HTTPException
 from sqlalchemy.orm import Session
 from apps.project.schema import *
 from fastapi.encoders import jsonable_encoder
 from typing import List
+from apps.project.models import Project
+
 
 Base.metadata.create_all(bind=engine)
 project_router = APIRouter()
@@ -97,6 +98,7 @@ async def delete_project(project_id: int, session: Session = Depends(get_session
     return MessageResponse(message="Project successfully deleted")
 
 
+
 #workflow created
 @project_router.post("/workflowstages", response_model=WorkflowStageResponse)
 async def create_workflow_stage(stage: CreateWorkflowstages, session: Session = Depends(get_session)):
@@ -106,7 +108,8 @@ async def create_workflow_stage(stage: CreateWorkflowstages, session: Session = 
     session.refresh(db_stage)
     return db_stage
 
-# Get a list of workflow stages
+
+# workflow_stages list
 @project_router.get("/workflowstages", response_model=List[WorkflowStageResponse])
 async def list_workflow_stages(session: Session = Depends(get_session)):
     stages = session.query(WorkFlowStages).all()
@@ -120,7 +123,7 @@ async def get_workflow_stage(stage_id: int, session: Session = Depends(get_sessi
         raise HTTPException(status_code=404, detail="Workflow stage not found")
     return stage
 
-# Update a workflow stage
+# Update workflow_stage
 @project_router.put("/workflowstages/{stage_id}", response_model=WorkflowStageResponse)
 async def update_workflow_stage(stage_id: int, stage: CreateWorkflowstages, session: Session = Depends(get_session)):
     db_stage = session.query(WorkFlowStages).filter(WorkFlowStages.id == stage_id).first()
@@ -132,19 +135,20 @@ async def update_workflow_stage(stage_id: int, stage: CreateWorkflowstages, sess
 
     session.commit()
     session.refresh(db_stage)
-    
     return db_stage
 
+
 # Delete a workflow stage
-@project_router.delete("/workflowstages/{stage_id}", response_model=MessageResponse)
-async def delete_workflow_stage(stage_id: int, session: Session = Depends(get_session)):
-    db_stage = session.query(WorkFlowStages).filter(WorkFlowStages.id == stage_id).first()
-    if not db_stage:
-        raise HTTPException(status_code=404, detail="Workflow stage not found")
+# @project_router.delete("/workflowstages/{stage_id}", response_model=MessageResponse)
+# async def delete_workflow_stage(stage_id: int, session: Session = Depends(get_session)):
+#     db_stage = session.query(WorkFlowStages).filter(WorkFlowStages.id == stage_id).first()
+#     if not db_stage:
+#         raise HTTPException(status_code=404, detail="Workflow stage not found")
     
-    session.delete(db_stage)
-    session.commit()
-    return MessageResponse(message="Workflow stage successfully deleted")
+#     session.delete(db_stage)
+#     session.commit()
+    
+#     return MessageResponse(message="Workflow stage successfully deleted")
 
 #sprint_created 
 @project_router.post("/sprints", response_model=SprintResponse)
@@ -208,6 +212,7 @@ async def list_roles(session: Session = Depends(get_session)):
     roles = session.query(Role).all()
     return {"items": roles}
 
+#project developer api
 @project_router.post("/projectdevelopers", response_model=ProjectDeveloperResponse)
 async def create_project_developer(developer: ProjectDeveloperCreate, session: Session = Depends(get_session)):
     try:
@@ -224,23 +229,55 @@ async def create_project_developer(developer: ProjectDeveloperCreate, session: S
     finally:
         session.close()
 
-
-
-
-
 @project_router.get("/projectdevelopers", response_model=ProjectDeveloperListResponse)
 async def list_project_developers(session: Session = Depends(get_session)):
     project_developers = session.query(ProjectDeveloper).all()
     return {"items": project_developers}
 
 
+#created task api
+@project_router.post("/tasks", response_model=TaskResponse)
+async def create_task(task_create: TaskCreate, session: Session = Depends(get_session)):
+    try:
+        db_task = Tasks(**task_create.dict())
+        session.add(db_task)
+        session.commit()
+        session.refresh(db_task)
+        return db_task
+    except Exception as e:
+        print(f"Error creating task: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    
+#update the task
+@project_router.put("/tasks/{task_id}", response_model=TaskResponse)
+async def update_task(task_id: int, task_update: TaskUpdate, session: Session = Depends(get_session)):
+    
+    db_task = session.query(Tasks).filter(Tasks.id == task_id).first()
+    if not db_task:
+        raise HTTPException(status_code=404, detail="Task not found") 
+    
+    for field, value in task_update.dict(exclude_unset=True).items():
+        setattr(db_task, field, value)
+    
+    if task_update.workflowstage_id:
+        workflow_stage = session.query(WorkFlowStages).get(task_update.workflowstage_id)
+        if not workflow_stage:
+            raise HTTPException(status_code=404, detail="Workflow stage not found")
+        db_task.workflowstage = workflow_stage
+    session.commit()
+    session.refresh(db_task)
+    return db_task
 
+#delete the task
+@project_router.delete("/tasks/{task_id}", response_model=dict)
+async def delete_task(task_id: int, session: Session = Depends(get_session)):
+    db_task = session.query(Tasks).filter(Tasks.id == task_id).first()#Fetch the task from the database
 
+    if not db_task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    db_task.is_deleted = True
+    db_task.deleted_at = datetime.utcnow()
 
-
-
-
-
-
-
-
+    session.commit()
+    return {"message": "Task deleted successfully"}

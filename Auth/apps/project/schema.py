@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,validator
 from datetime import datetime
 from typing import Optional, List
 from apps.account.models import *
@@ -114,23 +114,60 @@ class SprintResponse(SprintBase):
 class SprintListResponse(BaseModel):
     items: List[SprintResponse]
 
-class Taskcreate(BaseModel):
-    title :str
-    created_at : datetime
-    resolved_at : datetime
-    estimate_time : bool
-    is_deleted : datetime
-    assignee : int
-    project : int
-    sprint : int
-    status : int
-    created : int
-    deleted_by : int
+class TaskCreate(BaseModel):
+    task_title: str
+    created_at: datetime
+    resolved_at: datetime
+    is_deleted: bool
+    # estimate_time: Optional[str] = '00:00'
+    is_deleted: bool
+    deleted_at: datetime
+    assignee: int
+    project_id: int  # Update this line
+    sprint: Optional[int] = None
+    workflowstage_id: Optional[int] = None
+
+# class TaskResponse(BaseModel):
+#     id: int
+#     task_title: str
+#     created_at: datetime
+#     resolved_at: datetime
+#     # estimate_time: str
+#     is_deleted: bool
+#     deleted_at: datetime
+#     assignee: int
+#     project: int
+#     project_id: int 
+#     sprint: int
+#     workflowstage_id: int
+#     created: int
+#     deleted_by: int
+class TaskResponse(BaseModel):
+    id: int
+    task_title: str
+    created_at: datetime
+    resolved_at: datetime
+    # estimate_time: str
+    is_deleted: bool
+    deleted_at: datetime
+    assignee: int
+    project_id: int 
+    sprint: int
+    workflowstage_id: int
+    created: Optional[int] = None 
+    deleted_by: Optional[int] = None
 
 
-class TaskPlanner(BaseModel):
-    title : str
-    priority : int
-    status : int
-    created : datetime
-    user : int
+class TaskUpdate(BaseModel):
+    task_title: Optional[str] = None
+    resolved_at: Optional[datetime] = None
+    is_deleted: Optional[bool] = None
+    deleted_at: Optional[datetime] = None
+    assignee: Optional[int] = None
+    project_id: Optional[int] = None
+    sprint: Optional[int] = None
+    workflowstage_id: Optional[int] = None
+    # estimate_time: Optional[str] = None
+    created: Optional[int] = None
+    deleted_by: Optional[int] = None
+    

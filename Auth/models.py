@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, func
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, func,relationship
 
 from database import Base
 
@@ -9,6 +9,7 @@ class User(Base):
     username = Column(String(50),  nullable=False)
     email = Column(String(100), unique=True, nullable=False)
     password = Column(String(100), nullable=False)
+    tasks = relationship("Tasks", back_populates="user")
 
 class TokenTable(Base):
     __tablename__ = "token"
