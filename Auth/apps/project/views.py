@@ -6,7 +6,7 @@ from apps.project.schema import *
 from fastapi.encoders import jsonable_encoder
 from typing import List
 from apps.project.models import Project
-
+from sqlalchemy.exc import DataError
 
 Base.metadata.create_all(bind=engine)
 project_router = APIRouter()
@@ -281,3 +281,53 @@ async def delete_task(task_id: int, session: Session = Depends(get_session)):
 
     session.commit()
     return {"message": "Task deleted successfully"}
+
+#taskplanner
+@project_router.post("/taskplanner/", response_model=TaskPlannerResponse)
+def create_taskplanner(taskplanner_create: TaskPlannerCreate, db: Session = Depends(get_session)):
+    try:
+        db_taskplanner = TaskPlanner(**taskplanner_create.dict())
+        db.add(db_taskplanner)
+        db.commit()
+        db.refresh(db_taskplanner)
+        return db_taskplanner
+    except DataError as e:
+        print(f"Error creating task planner: {e}")
+        if "value too long for type character varying(6)" in str(e):
+            raise HTTPException(status_code=400, detail="Title is too long.")
+        else:
+            raise HTTPException(status_code=500, detail="Internal Server Error")
+        
+#get the taskplanner
+@project_router.get("/taskplanner/{taskplanner_id}", response_model=TaskPlannerResponse)
+def read_taskplanner(taskplanner_id: int, db: Session = Depends(get_session)):
+    db_taskplanner = db.query(TaskPlanner).filter(TaskPlanner.id == taskplanner_id).first()
+    if db_taskplanner is None:
+        raise HTTPException(status_code=404, detail="TaskPlanner not found")
+    return db_taskplanner
+
+#update the taskplanner
+@project_router.put("/taskplanner/{taskplanner_id}", response_model=TaskPlannerResponse)
+def update_taskplanner(taskplanner_id: int, taskplanner_update: TaskPlannerUpdate, db: Session = Depends(get_session)):
+    db_taskplanner = db.query(TaskPlanner).filter(TaskPlanner.id == taskplanner_id).first()
+    if db_taskplanner is None:
+        raise HTTPException(status_code=404, detail="TaskPlanner not found")
+
+    for key, value in taskplanner_update.dict().items():
+        setattr(db_taskplanner, key, value)
+
+    db.commit()
+    db.refresh(db_taskplanner)
+    return db_taskplanner
+
+#delete the taskplanner
+@project_router.delete("/taskplanner/{taskplanner_id}", response_model=TaskPlannerResponse)
+def delete_taskplanner(taskplanner_id: int, db: Session = Depends(get_session)):
+    db_taskplanner = db.query(TaskPlanner).filter(TaskPlanner.id == taskplanner_id).first()
+    if db_taskplanner is None:
+        raise HTTPException(status_code=404, detail="TaskPlanner not found")
+
+    db.delete(db_taskplanner)
+    db.commit()
+    print(f"TaskPlanner with ID {taskplanner_id} deleted")
+    return db_taskplanner

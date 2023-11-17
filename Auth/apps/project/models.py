@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Table, ARRAY,func
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Table,func,Enum
 from sqlalchemy.orm import relationship,validates
 from config.settings import *
 from apps.account.models import *
@@ -120,6 +120,32 @@ class Tasks(Base):
 
 
 
+# class TaskPlanner(Base):
+#     __tablename__ = "taskplanner"
+
+#     STATUS = {"new": "Inactive", "in_progress": "In progress", "complete": "Completed"}
+#     PRIORITIES = {1: "Eliminate", 2: "Delegate", 3: "Plan", 4: "Do"}
+
+#     id = Column(Integer, primary_key=True, index=True)
+#     title = Column(String,nullable=False)
+#     priority = Column(Integer,default=1)
+#     status = Column(String(6))
+#     created = Column(DateTime, default=func.now())
+#     user = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
+
+#     user_name = relationship("User", back_populates="taskplanner",foreign_keys=[user])
+
+#     @validates('priority')
+#     def validate_priority(self, key, value):
+#         if value not in self.PRIORITIES:
+#             raise ValueError(f"Invalid priority value: {value}")
+#         return value
+
+#     @validates('status')
+#     def validate_status(self, key, value):
+#         if value not in self.STATUS:
+#             raise ValueError(f"Invalid status value: {value}")
+#         return value
 class TaskPlanner(Base):
     __tablename__ = "taskplanner"
 
@@ -127,13 +153,13 @@ class TaskPlanner(Base):
     PRIORITIES = {1: "Eliminate", 2: "Delegate", 3: "Plan", 4: "Do"}
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String,nullable=False)
-    priority = Column(Integer,default=1)
+    title = Column(String, nullable=False)
+    priority = Column(Integer, default=1)
     status = Column(String(6))
     created = Column(DateTime, default=func.now())
     user = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
 
-    user_name = relationship("User", back_populates="taskplanner",foreign_keys=[user])
+    user_name = relationship("User", back_populates="taskplanner", foreign_keys=[user])
 
     @validates('priority')
     def validate_priority(self, key, value):
@@ -146,23 +172,3 @@ class TaskPlanner(Base):
         if value not in self.STATUS:
             raise ValueError(f"Invalid status value: {value}")
         return value
-    
-    
-
-    
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-

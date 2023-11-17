@@ -1,4 +1,4 @@
-from pydantic import BaseModel,validator
+from pydantic import BaseModel,validator,constr
 from datetime import datetime
 from typing import Optional, List
 from apps.account.models import *
@@ -170,4 +170,38 @@ class TaskUpdate(BaseModel):
     # estimate_time: Optional[str] = None
     created: Optional[int] = None
     deleted_by: Optional[int] = None
-    
+
+# class TaskPlannerBase(BaseModel):
+#     title: str
+#     priority: int = 1
+#     status: str
+#     user: int
+
+# class TaskPlannerCreate(TaskPlannerBase):
+#     pass
+
+# class TaskPlannerUpdate(BaseModel):
+#     title: Optional[str]
+#     priority: Optional[int]
+#     status: Optional[str]
+
+# class TaskPlannerResponse(TaskPlannerBase):
+#     id: int
+#     created: datetime
+class TaskPlannerBase(BaseModel):
+    title: str
+    priority: int = 1
+    status: constr(max_length=20)  # Set the maximum length according to your needs
+    user: int
+
+class TaskPlannerCreate(TaskPlannerBase):
+    pass    
+
+class TaskPlannerUpdate(BaseModel):
+    title: Optional[str]
+    priority: Optional[int]
+    status: Optional[constr(max_length=20)]
+
+class TaskPlannerResponse(TaskPlannerBase):
+    id: int
+    created: datetime
