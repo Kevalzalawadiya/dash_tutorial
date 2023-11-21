@@ -10,14 +10,12 @@ class Project(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(40), nullable=False)
-    short_name = Column(String(3), nullable=False)  
+    short_name = Column(String(length=10), nullable=False)
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
     is_active = Column(Boolean, default=True)
     # recipient = Column(ARRAY(String(length=255), dimensions=1), nullable=True)
     manage_by = Column(Integer, ForeignKey('users.id'))
-
-
     user = relationship("User", back_populates="projectsdv",foreign_keys=[manage_by])
     workflowstages = relationship("WorkFlowStages", back_populates="project_name")
     projectdevelopers = relationship("ProjectDeveloper", back_populates="project_name")  
@@ -32,6 +30,8 @@ project_developer = Table(
     Column("developer_id", Integer, ForeignKey("users.id"))
 )
 
+
+
 class WorkFlowStages(Base):
     __tablename__ = "workflowstages"
     id = Column(Integer, primary_key=True, index=True)
@@ -40,13 +40,15 @@ class WorkFlowStages(Base):
     project_name = relationship("Project", back_populates="workflowstages")
     tasks = relationship("Tasks", back_populates="workflowstage")
 
+
 class Role(Base):
     __tablename__ = "roles"
     id =Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     can_create_task = Column(Boolean, default=False)
     projectdevelopers = relationship("ProjectDeveloper", back_populates="roles")
-
+   
+   
 class ProjectDeveloper(Base):
     __tablename__ = "projectdevelopers"
 
@@ -86,7 +88,6 @@ class Sprint(Base):
 #     workflowstage_id = Column(Integer, ForeignKey('workflowstages.id'))
 #     created = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
 #     deleted_by = Column(Integer, ForeignKey('users.id', ondelete='SET NULL'), nullable=True)
-
 #     user = relationship("User", back_populates="tasks", foreign_keys=[assignee])
 #     project_name = relationship("Project", back_populates="tasks")
 #     sprints = relationship("Sprint", back_populates="tasks")

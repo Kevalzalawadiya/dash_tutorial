@@ -171,23 +171,6 @@ class TaskUpdate(BaseModel):
     created: Optional[int] = None
     deleted_by: Optional[int] = None
 
-# class TaskPlannerBase(BaseModel):
-#     title: str
-#     priority: int = 1
-#     status: str
-#     user: int
-
-# class TaskPlannerCreate(TaskPlannerBase):
-#     pass
-
-# class TaskPlannerUpdate(BaseModel):
-#     title: Optional[str]
-#     priority: Optional[int]
-#     status: Optional[str]
-
-# class TaskPlannerResponse(TaskPlannerBase):
-#     id: int
-#     created: datetime
 class TaskPlannerBase(BaseModel):
     title: str
     priority: int = 1
@@ -202,6 +185,11 @@ class TaskPlannerUpdate(BaseModel):
     priority: Optional[int]
     status: Optional[constr(max_length=20)]
 
-class TaskPlannerResponse(TaskPlannerBase):
+
+class TaskPlannerResponse(BaseModel):
     id: int
+    title: str
+    priority: int
+    status: str
+    user: int
     created: datetime

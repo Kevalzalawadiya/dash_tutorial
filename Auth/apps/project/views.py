@@ -12,7 +12,7 @@ Base.metadata.create_all(bind=engine)
 project_router = APIRouter()
 
 #created the project
-@project_router.post("/projects", response_model=ProjectResponse)
+@project_router.post("/create_projects", response_model=ProjectResponse)
 async def create_project(project: PojectCreate, session: Session = Depends(get_session)):
     start_date = datetime.strptime(project.start_date, '%Y-%m-%d')
     end_date = datetime.strptime(project.end_date, '%Y-%m-%d')
@@ -43,8 +43,9 @@ async def create_project(project: PojectCreate, session: Session = Depends(get_s
     )
     return response
 
+
 #update the project
-@project_router.put("/projects/{project_id}", response_model=ProjectResponse)
+@project_router.put("/updateproject/{project_id}", response_model=ProjectResponse)
 async def update_project(
     project_id: int,
     project: PojectCreate,
@@ -78,13 +79,13 @@ async def update_project(
     )
 
 #list of the project
-@project_router.get("/projects", response_model=List[ProjectResponse])
+@project_router.get("/list_projects", response_model=List[ProjectResponse])
 async def list_projects(session: Session = Depends(get_session)):
     projects = session.query(Project).all()
     return jsonable_encoder(projects)
 
 #delete the project
-@project_router.delete("/projects/{project_id}", response_model=MessageResponse)
+@project_router.delete("/delete_projects/{project_id}", response_model=MessageResponse)
 async def delete_project(project_id: int, session: Session = Depends(get_session)):
     # Query the project by its ID
     db_project = session.query(Project).filter(Project.id == project_id).first()
@@ -110,13 +111,13 @@ async def create_workflow_stage(stage: CreateWorkflowstages, session: Session = 
 
 
 # workflow_stages list
-@project_router.get("/workflowstages", response_model=List[WorkflowStageResponse])
+@project_router.get("/list_workflowstages", response_model=List[WorkflowStageResponse])
 async def list_workflow_stages(session: Session = Depends(get_session)):
     stages = session.query(WorkFlowStages).all()
     return jsonable_encoder(stages)
 
 # Get a specific workflow stage by ID
-@project_router.get("/workflowstages/{stage_id}", response_model=WorkflowStageResponse)
+@project_router.get("/id_workflowstages/{stage_id}", response_model=WorkflowStageResponse)
 async def get_workflow_stage(stage_id: int, session: Session = Depends(get_session)):
     stage = session.query(WorkFlowStages).filter(WorkFlowStages.id == stage_id).first()
     if not stage:
@@ -124,7 +125,7 @@ async def get_workflow_stage(stage_id: int, session: Session = Depends(get_sessi
     return stage
 
 # Update workflow_stage
-@project_router.put("/workflowstages/{stage_id}", response_model=WorkflowStageResponse)
+@project_router.put("/update_workflowstages/{stage_id}", response_model=WorkflowStageResponse)
 async def update_workflow_stage(stage_id: int, stage: CreateWorkflowstages, session: Session = Depends(get_session)):
     db_stage = session.query(WorkFlowStages).filter(WorkFlowStages.id == stage_id).first()
     if not db_stage:
@@ -139,19 +140,19 @@ async def update_workflow_stage(stage_id: int, stage: CreateWorkflowstages, sess
 
 
 # Delete a workflow stage
-# @project_router.delete("/workflowstages/{stage_id}", response_model=MessageResponse)
-# async def delete_workflow_stage(stage_id: int, session: Session = Depends(get_session)):
-#     db_stage = session.query(WorkFlowStages).filter(WorkFlowStages.id == stage_id).first()
-#     if not db_stage:
-#         raise HTTPException(status_code=404, detail="Workflow stage not found")
+@project_router.delete("/delete_workflowstages/{stage_id}", response_model=MessageResponse)
+async def delete_workflow_stage(stage_id: int, session: Session = Depends(get_session)):
+    db_stage = session.query(WorkFlowStages).filter(WorkFlowStages.id == stage_id).first()
+    if not db_stage:
+        raise HTTPException(status_code=404, detail="Workflow stage not found")
     
-#     session.delete(db_stage)
-#     session.commit()
+    session.delete(db_stage)
+    session.commit()
     
-#     return MessageResponse(message="Workflow stage successfully deleted")
+    return MessageResponse(message="Workflow stage successfully deleted")
 
 #sprint_created 
-@project_router.post("/sprints", response_model=SprintResponse)
+@project_router.post("/create_sprints", response_model=SprintResponse)
 async def create_sprint(sprint: SprintCreate, session: Session = Depends(get_session)):
     db_sprint = Sprint(**sprint.dict())
     session.add(db_sprint)
@@ -159,14 +160,14 @@ async def create_sprint(sprint: SprintCreate, session: Session = Depends(get_ses
     session.refresh(db_sprint)
     return db_sprint
 
-
-@project_router.get("/sprints", response_model=List[SprintResponse])
+#display sprints
+@project_router.get("/list_sprints", response_model=List[SprintResponse])
 async def list_sprints(session: Session = Depends(get_session)):
     sprints = session.query(Sprint).all()
     return jsonable_encoder(sprints)
 
 # Get a specific sprint by ID
-@project_router.get("/sprints/{sprint_id}", response_model=SprintResponse)
+@project_router.get("/id_sprints/{sprint_id}", response_model=SprintResponse)
 async def get_sprint(sprint_id: int, session: Session = Depends(get_session)):
     sprint = session.query(Sprint).filter(Sprint.id == sprint_id).first()
     if not sprint:
@@ -174,7 +175,7 @@ async def get_sprint(sprint_id: int, session: Session = Depends(get_session)):
     return sprint
 
 # Update a sprint
-@project_router.put("/sprints/{sprint_id}", response_model=SprintResponse)
+@project_router.put("/update_sprints/{sprint_id}", response_model=SprintResponse)
 async def update_sprint(sprint_id: int, sprint: SprintCreate, session: Session = Depends(get_session)):
     db_sprint = session.query(Sprint).filter(Sprint.id == sprint_id).first()
     if not db_sprint:
@@ -189,7 +190,7 @@ async def update_sprint(sprint_id: int, sprint: SprintCreate, session: Session =
     return db_sprint
 
 # Delete a sprint
-@project_router.delete("/sprints/{sprint_id}", response_model=MessageResponse)
+@project_router.delete("/delete_sprints/{sprint_id}", response_model=MessageResponse)
 async def delete_sprint(sprint_id: int, session: Session = Depends(get_session)):
     db_sprint = session.query(Sprint).filter(Sprint.id == sprint_id).first()
     if not db_sprint:
@@ -207,7 +208,8 @@ async def create_role(role: RoleCreate, session: Session = Depends(get_session))
     session.refresh(db_role)
     return db_role
 
-@project_router.get("/roles", response_model=RoleListResponse)
+#list roles
+@project_router.get("/list_roles", response_model=RoleListResponse)
 async def list_roles(session: Session = Depends(get_session)):
     roles = session.query(Role).all()
     return {"items": roles}
@@ -229,14 +231,15 @@ async def create_project_developer(developer: ProjectDeveloperCreate, session: S
     finally:
         session.close()
 
-@project_router.get("/projectdevelopers", response_model=ProjectDeveloperListResponse)
+#list of projectdeveloper
+@project_router.get("/list_projectdevelopers", response_model=ProjectDeveloperListResponse)
 async def list_project_developers(session: Session = Depends(get_session)):
     project_developers = session.query(ProjectDeveloper).all()
     return {"items": project_developers}
 
 
 #created task api
-@project_router.post("/tasks", response_model=TaskResponse)
+@project_router.post("/craete_task", response_model=TaskResponse)
 async def create_task(task_create: TaskCreate, session: Session = Depends(get_session)):
     try:
         db_task = Tasks(**task_create.dict())
@@ -247,9 +250,9 @@ async def create_task(task_create: TaskCreate, session: Session = Depends(get_se
     except Exception as e:
         print(f"Error creating task: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
-    
+
 #update the task
-@project_router.put("/tasks/{task_id}", response_model=TaskResponse)
+@project_router.put("/update_tasks/{task_id}", response_model=TaskResponse)
 async def update_task(task_id: int, task_update: TaskUpdate, session: Session = Depends(get_session)):
     
     db_task = session.query(Tasks).filter(Tasks.id == task_id).first()
@@ -269,7 +272,7 @@ async def update_task(task_id: int, task_update: TaskUpdate, session: Session = 
     return db_task
 
 #delete the task
-@project_router.delete("/tasks/{task_id}", response_model=dict)
+@project_router.delete("/delete_tasks/{task_id}", response_model=dict)
 async def delete_task(task_id: int, session: Session = Depends(get_session)):
     db_task = session.query(Tasks).filter(Tasks.id == task_id).first()#Fetch the task from the database
 
@@ -282,8 +285,8 @@ async def delete_task(task_id: int, session: Session = Depends(get_session)):
     session.commit()
     return {"message": "Task deleted successfully"}
 
-#taskplanner
-@project_router.post("/taskplanner/", response_model=TaskPlannerResponse)
+#create taskplanner
+@project_router.post("/create_taskplanner/", response_model=TaskPlannerResponse)
 def create_taskplanner(taskplanner_create: TaskPlannerCreate, db: Session = Depends(get_session)):
     try:
         db_taskplanner = TaskPlanner(**taskplanner_create.dict())
@@ -291,23 +294,29 @@ def create_taskplanner(taskplanner_create: TaskPlannerCreate, db: Session = Depe
         db.commit()
         db.refresh(db_taskplanner)
         return db_taskplanner
-    except DataError as e:
+    except ValueError as e:
         print(f"Error creating task planner: {e}")
-        if "value too long for type character varying(6)" in str(e):
-            raise HTTPException(status_code=400, detail="Title is too long.")
-        else:
-            raise HTTPException(status_code=500, detail="Internal Server Error")
-        
-#get the taskplanner
-@project_router.get("/taskplanner/{taskplanner_id}", response_model=TaskPlannerResponse)
-def read_taskplanner(taskplanner_id: int, db: Session = Depends(get_session)):
-    db_taskplanner = db.query(TaskPlanner).filter(TaskPlanner.id == taskplanner_id).first()
-    if db_taskplanner is None:
-        raise HTTPException(status_code=404, detail="TaskPlanner not found")
-    return db_taskplanner
+    raise HTTPException(status_code=400, detail=str(e))
+
+#list of taskplanner
+@project_router.get("/list_taskplanner", response_model=List[TaskPlannerResponse])
+def list_taskplanners(db: Session = Depends(get_session)):
+    taskplanners = db.query(TaskPlanner).all()
+
+    return [
+        TaskPlannerResponse(
+            id=db_taskplanner.id,
+            title=db_taskplanner.title,
+            priority=db_taskplanner.priority,
+            status=db_taskplanner.status,
+            user=db_taskplanner.user,
+            created=db_taskplanner.created 
+        )
+        for db_taskplanner in taskplanners
+    ]
 
 #update the taskplanner
-@project_router.put("/taskplanner/{taskplanner_id}", response_model=TaskPlannerResponse)
+@project_router.put("/update_taskplanner/{taskplanner_id}", response_model=TaskPlannerResponse)
 def update_taskplanner(taskplanner_id: int, taskplanner_update: TaskPlannerUpdate, db: Session = Depends(get_session)):
     db_taskplanner = db.query(TaskPlanner).filter(TaskPlanner.id == taskplanner_id).first()
     if db_taskplanner is None:
@@ -321,7 +330,7 @@ def update_taskplanner(taskplanner_id: int, taskplanner_update: TaskPlannerUpdat
     return db_taskplanner
 
 #delete the taskplanner
-@project_router.delete("/taskplanner/{taskplanner_id}", response_model=TaskPlannerResponse)
+@project_router.delete("/delete_taskplanner/{taskplanner_id}", response_model=TaskPlannerResponse)
 def delete_taskplanner(taskplanner_id: int, db: Session = Depends(get_session)):
     db_taskplanner = db.query(TaskPlanner).filter(TaskPlanner.id == taskplanner_id).first()
     if db_taskplanner is None:
