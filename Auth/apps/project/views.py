@@ -79,7 +79,7 @@ async def update_project(
     )
 
 #search project
-@project_router.get("/projects/search/", response_model=List[ProjectResponsef])
+@project_router.get("/projects/search/", response_model=List[ProjectResponse])
 def search_projects(name: str, db: Session = Depends(get_session)):
     projects = db.query(Project).filter(Project.name.ilike(f"%{name}%")).all()
     return projects
