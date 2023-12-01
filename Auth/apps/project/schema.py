@@ -127,21 +127,6 @@ class TaskCreate(BaseModel):
     sprint: Optional[int] = None
     workflowstage_id: Optional[int] = None
 
-# class TaskResponse(BaseModel):
-#     id: int
-#     task_title: str
-#     created_at: datetime
-#     resolved_at: datetime
-#     # estimate_time: str
-#     is_deleted: bool
-#     deleted_at: datetime
-#     assignee: int
-#     project: int
-#     project_id: int 
-#     sprint: int
-#     workflowstage_id: int
-#     created: int
-#     deleted_by: int
 class TaskResponse(BaseModel):
     id: int
     task_title: str
