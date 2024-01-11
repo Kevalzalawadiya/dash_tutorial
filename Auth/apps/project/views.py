@@ -78,11 +78,6 @@ async def create_project(project: ProjectCreate, session: Session = Depends(get_
 
 
 
-
-
-
-
-
 @project_router.get("/list_projects", response_model=List[ProjectResponseList])
 async def list_projects(session: Session = Depends(get_session)):
     projects = session.query(Project).all()
