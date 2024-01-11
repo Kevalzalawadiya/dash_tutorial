@@ -1,35 +1,67 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+from typing import List
 from datetime import datetime
 
 
-
-class UserCreate(BaseModel):
+class UserBase(BaseModel):
     username: str
-    email: str
+    email: EmailStr
+
+class UserCreate(UserBase):
     password: str
 
 class requestdetails(BaseModel):
     email:str
     password:str
-        
-class TokenSchema(BaseModel):
+
+class UserResponse(UserBase):
+    id: int
+    username: str
+    email: EmailStr
+
+    class Config:
+        orm_mode = True
+
+class TokenTableBase(BaseModel):
     access_token: str
     refresh_token: str
-    message: str
+    status: bool
 
 class changepassword(BaseModel):
-    email:str
-    old_password:str
-    new_password:str
+    email: EmailStr
+    old_password: str
+    new_password: str
+   
 
-class TokenCreate(BaseModel):
-    user_id:str
-    access_token:str
-    refresh_token:str
-    session_token:str
-    status:bool
-    created_date:datetime
+class TokenTableCreate(BaseModel):
+    access_token: str
+    refresh_token: str
+    status: bool
+    user_id: int  
+    created_date: datetime
+    
+class TokenTableResponse(TokenTableCreate):
+    token_id: int
+    created_date: datetime
+    user: UserResponse
 
+    class Config:
+        orm_mode = True
+
+class PasswordResetTokenBase(BaseModel):
+    email: EmailStr
+    reset_token: str
+    reset_token_expiry: datetime
+
+class PasswordResetTokenCreate(PasswordResetTokenBase):
+    pass  
+
+class PasswordResetTokenResponse(PasswordResetTokenBase):
+    passwordresettoken_id: int
+    user: UserResponse
+
+    class Config:
+        orm_mode = True
 
 class ResetPassword(BaseModel):
     token: str

@@ -1,3 +1,229 @@
+# from sqlalchemy import func
+# from sqlalchemy.orm import Session
+# from jose import JWTError, jwt
+# from fastapi import Depends, HTTPException, status, Response, APIRouter 
+# from datetime import datetime, timedelta
+# from email.mime.multipart import MIMEMultipart
+# from email.mime.text import MIMEText
+# from fastapi.security import OAuth2PasswordRequestForm
+# import smtplib
+# import re
+# from .schema import *
+# from config.settings import *
+# from apps.account.auth_bearer import *
+
+# Base.metadata.create_all(bind=engine)
+
+# router = APIRouter()
+
+# # Password pattern
+# PASSWORD_PATTERN = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*])[A-Za-z\d@#$%^&*]{8,}$"
+
+
+
+
+
+# # User registration
+# @router.post("/register")
+# async def register_user(user: UserCreate, session: Session = Depends(get_session)):
+#     existing_user = session.query(User).filter_by(email=user.email).first()
+#     if existing_user:
+#         raise HTTPException(status_code=400, detail="Email already registered")
+
+#     # Validate the password
+#     if not re.match(PASSWORD_PATTERN, user.password):
+#         error_message = "Password must meet the following criteria:\n" \
+#                         "- At least one uppercase letter\n" \
+#                         "- At least one lowercase letter\n" \
+#                         "- At least one digit\n" \
+#                         "- At least one special character from @, #, $, %, ^, &, or *\n" \
+#                         "- The password must be at least 8 characters long"
+#         raise HTTPException(status_code=400, detail=error_message)
+
+#     encrypted_password = get_hashed_password(user.password)
+
+#     new_user = User(username=user.username, email=user.email, password=encrypted_password)
+
+#     session.add(new_user)
+#     session.commit()
+#     session.refresh(new_user)
+
+#     return {"message": "User created successfully"}
+
+
+# # @router.post("/token")
+# # async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_session)):
+# #     user = db.query(User).filter(User.email == form_data.username).first()
+# #     if not user or not verify_password(form_data.password, user.password):
+# #         raise HTTPException(
+# #             status_code=status.HTTP_401_UNAUTHORIZED,
+# #             detail="Incorrect email or password",
+# #             headers={"WWW-Authenticate": "Bearer"},
+# #         )
+
+# #     access_token_expires = timedelta(minutes=15)
+# #     access_token = create_access_token(subject=user.email, expires_delta=access_token_expires)
+# #     return {"access_token": access_token, "token_type": "bearer"}
+
+# # User Login API
+# @router.post('/login', response_model=TokenTableBase)
+# async def login(request: UserCreate, response: Response, db: Session = Depends(get_session)):
+#     user = db.query(User).filter(User.email == request.email).first()
+#     if user is None:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect email")
+
+#     hashed_pass = user.password
+#     if not verify_password(request.password, hashed_pass):
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail="Incorrect password"
+#         )
+
+#     if not re.match(PASSWORD_PATTERN, request.password):
+#         error_message = "Password must meet the following criteria:\n" \
+#                         "- At least one uppercase letter\n" \
+#                         "- At least one lowercase letter\n" \
+#                         "- At least one digit\n" \
+#                         "- At least one special character from @, #, $, %, ^, &, or *\n" \
+#                         "- The password must be at least 8 characters long"
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error_message)
+
+#     access_token_expires = timedelta(minutes=15)
+#     access = create_access_token(user.id, expires_delta=access_token_expires)
+#     refresh = create_refresh_token(user.id)
+
+#     token_db = TokenTable(access_token=access, refresh_token=refresh, status=True, user_id=user.id)
+#     db.add(token_db)
+#     db.commit()
+#     db.refresh(token_db)
+
+#     result = {"access_token": access, "refresh_token": refresh, "status": True, "message": "Login Successful"}
+#     return result
+
+# # Change password
+# @router.post('/changepassword')
+# async def change_password(request: changepassword, db: Session = Depends(get_session)):
+#     user = db.query(User).filter(User.email == request.email).first()
+
+#     if user is None:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found")
+
+#     if not re.match(PASSWORD_PATTERN, request.new_password):
+#         error_message = "Password must meet the following criteria:\n" \
+#                         "- At least one uppercase letter\n" \
+#                         "- At least one lowercase letter\n" \
+#                         "- At least one digit\n" \
+#                         "- At least one special character from @, #, $, %, ^, &, or *\n" \
+#                         "- The password must be at least 8 characters long"
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error_message)
+
+#     if not verify_password(request.old_password, user.password):
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid old password")
+
+#     encrypted_password = get_hashed_password(request.new_password)
+#     user.password = encrypted_password
+#     db.commit()
+
+#     return {"message": "Password changed successfully"}
+
+# # Forget password 
+# SECRET_KEY = "narscbjim@$@&^@&%^&RFghgjvb545435sha"
+# PASSWORD_RESET_SECRET_KEY = "1584ugfdfgh@#$%^@&jkl45678902"
+
+# async def create_password_reset_token(email: str, expires_delta: timedelta = timedelta(hours=1)):
+#     to_encode = {"email": email, "exp": datetime.utcnow() + expires_delta}
+#     encoded_token = jwt.encode(to_encode, PASSWORD_RESET_SECRET_KEY, algorithm=ALGORITHM)
+#     return encoded_token
+
+# email_address = "aayushi.fichadiya@gmail.com" # type Email
+# email_password = "rpyq nluu bmfx aafk"
+
+# async def send_reset_email(email, token):
+#     msg = MIMEMultipart()
+#     msg['From'] = email_address
+#     msg['To'] = email
+#     msg['Subject'] = "Password Reset"
+#     reset_url = f"http://127.0.0.0:8000/forgot-password?email=aayushi.fichadiya%40gmail.com"
+#     body = f"Click the following link to reset your password: {reset_url}"
+#     msg.attach(MIMEText(body, 'plain'))
+
+#     body = f"Password Reset Token: {token}"
+#     msg.attach(MIMEText(body, 'plain'))
+
+#     server = smtplib.SMTP('smtp.gmail.com', 587)
+#     server.starttls()
+#     server.login(email_address, email_password)
+#     text = msg.as_string()
+#     server.sendmail(email_address, email, text)
+#     server.quit()
+#     print("Email sent successfully.")
+
+# # Forget password API
+# @router.post("/forgot-password")
+# async def forgot_password(email: str, db: Session = Depends(get_session)):
+#     user = db.query(User).filter(User.email == email).first()
+#     if not user:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+#     password_reset_token = create_password_reset_token(email)
+#     send_reset_email(email, password_reset_token)
+
+#     return {"message": "Password reset email sent"}
+
+# # Reset password 
+# @router.post("/reset-password")
+# async def reset_password(reset_data: PasswordResetTokenBase, db: Session = Depends(get_session)):
+#     try:
+#         payload = jwt.decode(reset_data.token, PASSWORD_RESET_SECRET_KEY, algorithms=[ALGORITHM])
+#         email = payload.get("email")
+
+#         user = db.query(User).filter(User.email == email).first()
+
+#         if user:
+#             if "exp" in payload and datetime.utcfromtimestamp(payload["exp"]) > datetime.utcnow():
+#                 hashed_password = get_hashed_password(reset_data.new_password)
+#                 user.password = hashed_password
+#                 db.commit()
+#                 return {"message": "Password reset successfully"}
+
+#     except JWTError:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password reset token is invalid")
+
+# # Logout
+# @router.post('/logout')
+# async def logout(dependencies=Depends(JWTBearer()), db: Session = Depends(get_session)):
+#     token = dependencies
+#     payload = jwt.decode(token, JWT_SECRET_KEY, ALGORITHM)
+#     user_id = payload['sub']
+#     token_record = db.query(TokenTable).all()
+#     info = []
+#     for record in token_record:
+#         if (datetime.utcnow() - record.created_date).days > 1:
+#             info.append(record.user_id)
+#     if info:
+#         existing_token = db.query(TokenTable).where(TokenTable.user_id.in_(info)).delete()
+#         db.commit()
+
+#     existing_token = db.query(TokenTable).filter(TokenTable.user_id == user_id, TokenTable.access_token == token).first()
+#     if existing_token:
+#         existing_token.status = False
+#         db.add(existing_token)
+#         db.commit()
+#         db.refresh(existing_token)
+#     return {"message": "Logout Successfully"}
+
+# # Protected route example
+# # @router.get("/protected-route")
+# # async def protected_route(current_user: str = Depends(jwt_bearer)):
+# #     return {"message": f"Hello, {current_user}! This route is protected."}
+
+# # # Another protected route example
+# # @router.get("/another-protected-route")
+# # async def another_protected_route(current_user: str = Depends(jwt_bearer)):
+# #     return {"message": f"Hello, {current_user}! This is another protected route."}
+
+
+
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
@@ -51,9 +277,11 @@ async def register_user(user: UserCreate, session: Session = Depends(get_session
 
     return {"message": "User created successfully"}
 
+
+
 #User Login
-@router.post('/login', response_model=TokenSchema)
-async def login(request: requestdetails,response: Response, db: Session = Depends(get_session)):
+@router.post("/login")
+async def login(request: requestdetails, response: Response, db: Session = Depends(get_session)):
     user = db.query(User).filter(User.email == request.email).first()
     if user is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect email")
@@ -182,27 +410,75 @@ async def reset_password(reset_data: ResetPassword, db: Session = Depends(get_se
 
 
 #Logout
-@router.post('/logout')
-async def logout(dependencies=Depends(JWTBearer()), db: Session = Depends(get_session)):
-    token=dependencies
-    payload = jwt.decode(token, JWT_SECRET_KEY, ALGORITHM)
-    user_id = payload['sub']
-    token_record = db.query(TokenTable).all()
-    info=[]
-    for record in token_record :
-        print("record",record)
-        if (datetime.utcnow() - record.created_date).days >1:
-            info.append(record.user_id)
-    if info:
-        existing_token = db.query(TokenTable).where(TokenTable.user_id.in_(info)).delete()
-        db.commit()
+# @router.post('/logout')
+# async def logout(dependencies=Depends(JWTBearer()), db: Session = Depends(get_session)):
+#     token=dependencies
+#     payload = jwt.decode(token, JWT_SECRET_KEY, ALGORITHM)
+#     user_id = payload['sub']
+#     token_record = db.query(TokenTable).all()
+#     info=[]
+#     for record in token_record :
+#         print("record",record)
+#         if (datetime.utcnow() - record.created_date).days >1:
+#             info.append(record.user_id)
+#     if info:
+#         existing_token = db.query(TokenTable).where(TokenTable.user_id.in_(info)).delete()
+#         db.commit()
         
-    existing_token = db.query(TokenTable).filter(TokenTable.user_id == user_id, TokenTable.access_token==token).first()
-    if existing_token:
-        existing_token.status=False
-        db.add(existing_token)
-        db.commit()
-        db.refresh(existing_token)
-    return {"message":"Logout Successfully"} 
+#     existing_token = db.query(TokenTable).filter(TokenTable.user_id == user_id, TokenTable.access_token==token).first()
+#     if existing_token:
+#         existing_token.status=False
+#         db.add(existing_token)
+#         db.commit()
+#         db.refresh(existing_token)
+#     return {"message":"Logout Successfully"} 
 
+@router.post('/logout')
+async def logout(dependencies: str = Depends(JWTBearer()), db: Session = Depends(get_session)):
+    try:
+        token = dependencies
+        payload = jwt.decode(token, JWT_SECRET_KEY, ALGORITHM)
+        user_id = payload['sub']
+
+        # Delete expired tokens
+        expired_tokens = db.query(TokenTable).filter(
+            (datetime.utcnow() - TokenTable.created_date) > timedelta(days=1)
+        ).all()
+
+        for expired_token in expired_tokens:
+            db.delete(expired_token)
+
+        # Invalidate the current token
+        current_token = db.query(TokenTable).filter(
+            TokenTable.user_id == user_id,
+            TokenTable.access_token == token
+        ).first()
+
+        if current_token:
+            current_token.status = False
+            db.commit()
+            db.refresh(current_token)
+
+        return {"message": "Logout Successfully"}
+
+    except jwt.ExpiredSignatureError:
+        # Handle token expiration error
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except jwt.InvalidTokenError:
+        # Handle invalid token error
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except Exception as e:
+        # Handle other unexpected errors
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal Server Error: {str(e)}"
+        )
 
