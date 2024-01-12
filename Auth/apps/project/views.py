@@ -1,6 +1,8 @@
+from sqlalchemy import exists
+from psycopg2 import IntegrityError
 from apps.project.models import *
 from config.settings import *
-from fastapi import APIRouter, Depends,HTTPException
+from fastapi import APIRouter, Depends,HTTPException,Query
 from sqlalchemy.orm import Session
 from apps.project.schema import *
 from apps.account.schema import *
@@ -146,19 +148,36 @@ async def update_project(
     if not db_project:
         raise HTTPException(status_code=404, detail="Project not found")
 
+    # Check if the user exists before updating
+    db_user = session.query(User).filter(User.id == project.manage_by).first()
+
+    if not db_user:
+        raise HTTPException(status_code=400, detail="Invalid user ID in manage_by")
+
     # Update the project details
     db_project.name = project.name
     db_project.short_name = project.short_name
     db_project.start_date = project.start_date
     db_project.end_date = project.end_date
     db_project.is_active = project.is_active
+
+    # Check if the provided manage_by value exists in the User table
+    if not session.query(exists().where(User.id == project.manage_by)).scalar():
+        raise HTTPException(status_code=400, detail="Invalid user ID in manage_by")
+
     db_project.manage_by = project.manage_by
 
-    # Commit the changes
-    session.commit()
+    # Handle foreign key constraint violation
+    try:
+        # Commit the changes
+        session.commit()
+    except IntegrityError as e:
+        session.rollback()
+        raise HTTPException(status_code=400, detail=f"Foreign key constraint violation: {e}")
 
     # Return the updated project details in the response
     return project
+
 
 
 
@@ -175,6 +194,36 @@ async def delete_project(project_id: int, session: Session = Depends(get_session
     session.delete(db_project)
     session.commit()
     return MessageResponse(message="Project successfully deleted")
+
+
+@project_router.get("/search_projects")
+async def search_projects(
+    project_name: str = Query(..., title="Project Name"),
+    session: Session = Depends(get_session)
+):
+    projects = (
+        session.query(Project)
+        .filter(Project.name.ilike(f"%{project_name}%"))
+        .all()
+    )
+
+    if not projects:
+        raise HTTPException(status_code=404, detail=f"No projects found with the specified name: {project_name}")
+
+    result = [
+        {
+            "id": project.id,
+            "name": project.name,
+            "short_name": project.short_name,
+            "start_date": project.start_date,
+            "end_date": project.end_date,
+            "is_active": project.is_active,
+            "manage_by": project.manage_by,
+        }
+        for project in projects
+    ]
+
+    return result   
 
 
 

@@ -10,7 +10,6 @@ class ProjectBase(BaseModel):
     start_date: date
     end_date: date
     is_active: bool
-    
     manage_by: int
 
 class ProjectCreate(ProjectBase):
