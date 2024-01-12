@@ -18,7 +18,7 @@ class Project(Base):
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
     is_active = Column(Boolean, default=True)
-    recipient = Column(ARRAY(String), nullable=True)
+    # recipient = Column(ARRAY(String), nullable=True)
     manage_by = Column(Integer, ForeignKey('users.id',ondelete='CASCADE'))
     
 

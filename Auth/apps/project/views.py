@@ -39,10 +39,7 @@ async def create_project(project: ProjectCreate, session: Session = Depends(get_
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Invalid date format: {e}")
 
-    # Assuming project.manage_by is the ID of the selected user
     user_id = project.manage_by
-    # user = session.query(User).filter(User.id == user_id).first()
-    # print("--------------------------",user)
 
     if not user_id:
         raise HTTPException(status_code=404, detail="User not found")
@@ -53,7 +50,7 @@ async def create_project(project: ProjectCreate, session: Session = Depends(get_
         start_date=start_date,
         end_date=end_date,
         is_active=project.is_active,
-        recipient=project.recipient,
+    
         manage_by=user_id 
     )
 
@@ -61,7 +58,6 @@ async def create_project(project: ProjectCreate, session: Session = Depends(get_
     session.commit()
     session.refresh(db_project)
 
-    # Include the required fields in the response
     response = ProjectCreate(
         id=db_project.id,
         name=db_project.name,
@@ -69,14 +65,9 @@ async def create_project(project: ProjectCreate, session: Session = Depends(get_
         start_date=db_project.start_date,
         end_date=db_project.end_date,
         is_active=db_project.is_active,
-        recipient=db_project.recipient, 
-        manage_by=db_project.manage_by # Assuming you want to return the user ID in the response
+        manage_by=db_project.manage_by
     )
     return response
-
-
-
-
 
 @project_router.get("/list_projects", response_model=List[ProjectResponseList])
 async def list_projects(session: Session = Depends(get_session)):
@@ -102,7 +93,6 @@ async def list_projects(session: Session = Depends(get_session)):
             start_date=project.start_date,
             end_date=project.end_date,
             is_active=project.is_active,
-            recipient=project.recipient,
             manage_by=manage_by
         )
 
@@ -137,13 +127,38 @@ async def list_projects(project_id: int, session: Session = Depends(get_session)
             start_date=project.start_date,
             end_date=project.end_date,
             is_active=project.is_active,
-            recipient=project.recipient,
             manage_by=manage_by
         )
 
         project_responses.append(project_response)
 
     return project_responses
+
+
+@project_router.put("/update_project/{project_id}", response_model=ProjectUpdate)
+async def update_project(
+    project_id: int,
+    project: ProjectUpdate,
+    session: Session = Depends(get_session)
+):
+    # Check if the project exists
+    db_project = session.query(Project).filter(Project.id == project_id).first()
+    if not db_project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # Update the project details
+    db_project.name = project.name
+    db_project.short_name = project.short_name
+    db_project.start_date = project.start_date
+    db_project.end_date = project.end_date
+    db_project.is_active = project.is_active
+    db_project.manage_by = project.manage_by
+
+    # Commit the changes
+    session.commit()
+
+    # Return the updated project details in the response
+    return project
 
 
 

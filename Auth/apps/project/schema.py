@@ -10,7 +10,7 @@ class ProjectBase(BaseModel):
     start_date: date
     end_date: date
     is_active: bool
-    recipient: List[str]
+    
     manage_by: int
 
 class ProjectCreate(ProjectBase):
@@ -22,9 +22,19 @@ class ProjectResponseList(BaseModel):
     short_name: str
     start_date: date
     end_date: date
-    is_active: bool
-    recipient: List[str]
+    is_active:  bool
+    
     manage_by: UserResponse
+
+class ProjectUpdate(BaseModel):
+    
+    name: str
+    short_name: str
+    start_date: date
+    end_date: date
+    is_active: bool
+    manage_by: int
+
 
 class ProjectResponse(BaseModel):
     id: int
